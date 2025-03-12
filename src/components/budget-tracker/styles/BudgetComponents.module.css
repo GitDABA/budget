@@ -1,0 +1,25 @@
+/* Common styles for budget tracker components */
+
+.categoryColorIndicator {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  margin-right: 8px;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.colorSelectorButton {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.colorSelectorButton.selected {
+  border-color: #fff;
+  box-shadow: 0 0 0 2px var(--primary-color, #3b82f6);
+  transform: scale(1.1);
+}

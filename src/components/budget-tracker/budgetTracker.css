@@ -1,0 +1,76 @@
+/* Budget Tracker Component Styles */
+
+/* Category color indicators */
+.category-color-indicator {
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 9999px;
+  margin-right: 0.5rem;
+  display: inline-block;
+}
+
+/* For styling category color indicators without inline styles */
+.category-color {
+  background-color: var(--category-color, #ccc);
+}
+
+/* Color selector buttons */
+.color-selector-button {
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background-color: var(--btn-color, #ccc);
+}
+
+.color-selector-button.selected {
+  outline: 2px solid #9ca3af;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 2px rgba(156, 163, 175, 0.5);
+}
+
+/* Progress bars */
+.progress-bar-container {
+  height: 0.5rem;
+  width: 100%;
+  background-color: #e5e7eb;
+  border-radius: 0.25rem;
+  overflow: hidden;
+}
+
+.progress-bar {
+  height: 100%;
+  border-radius: 0.25rem;
+  transition: width 0.3s ease;
+}
+
+/* Dark mode adjustments */
+.dark .progress-bar-container {
+  background-color: #374151;
+}
+
+/* Budget status indicators */
+.budget-status-good {
+  color: #10b981;
+}
+
+.budget-status-warning {
+  color: #f59e0b;
+}
+
+.budget-status-danger {
+  color: #ef4444;
+}
+
+.dark .budget-status-good {
+  color: #34d399;
+}
+
+.dark .budget-status-warning {
+  color: #fbbf24;
+}
+
+.dark .budget-status-danger {
+  color: #f87171;
+}
