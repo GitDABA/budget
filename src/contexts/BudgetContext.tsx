@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { supabase, Budget, Category, Expense } from '@/lib/supabase';
+import { deleteItem, testSupabaseConnection, testDeletePermission } from '@/lib/supabaseHelpers';
 
 interface BudgetContextType {
   budgets: Budget[];
@@ -11,6 +12,7 @@ interface BudgetContextType {
   createBudget: (name: string, amount: number, useTemplate?: boolean) => Promise<Budget | null>;
   selectBudget: (budgetId: string) => Promise<void>;
   deleteBudget: (budgetId: string) => Promise<boolean>;
+  deleteCategory: (categoryId: string) => Promise<boolean>;
   fetchBudgetDetails: (budgetId: string) => Promise<{
     categories: Category[];
     expenses: Expense[];
@@ -18,6 +20,7 @@ interface BudgetContextType {
   createCategory: (category: Omit<Category, 'id'>) => Promise<Category | null>;
   createExpense: (expense: Omit<Expense, 'id'>) => Promise<Expense | null>;
   updateBudget: (budget: Partial<Budget> & { id: string }) => Promise<Budget | null>;
+  testSupabase: () => Promise<boolean>;
 }
 
 const BudgetContext = createContext<BudgetContextType | undefined>(undefined);
@@ -200,26 +203,72 @@ export const BudgetProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  // Delete a budget
-  const deleteBudget = async (budgetId: string): Promise<boolean> => {
+  // Test Supabase connection and permissions
+  const testSupabase = async () => {
+    console.log('Testing Supabase connection and permissions...');
+    
     try {
-      // First, delete all associated categories and expenses
-      await Promise.all([
-        supabase.from('categories').delete().eq('budget_id', budgetId),
-        supabase.from('expenses').delete().eq('budget_id', budgetId)
-      ]);
-      
-      // Then delete the budget itself
-      const { error } = await supabase
-        .from('budgets')
-        .delete()
-        .eq('id', budgetId);
-
-      if (error) {
-        throw error;
+      // First test basic connection
+      const connTest = await testSupabaseConnection();
+      if (!connTest.success) {
+        console.error('Supabase connection test failed:', connTest.message);
+        setError('Database connection error: ' + connTest.message);
+        return false;
       }
+      
+      // Then test delete permissions on budgets
+      const permTest = await testDeletePermission('budgets');
+      console.log('Permission test result:', permTest);
+      
+      return permTest.success;
+    } catch (error: any) {
+      console.error('Error testing Supabase:', error);
+      setError('Error testing database: ' + (error.message || 'Unknown error'));
+      return false;
+    }
+  };
+  
+  // Delete a budget - simplified with standardized deletion helper
+  const deleteBudget = async (budgetId: string): Promise<boolean> => {
+    console.log('Attempting to delete budget with ID:', budgetId);
+    setError(null); // Clear any previous errors
+    
+    if (!budgetId) {
+      setError('Invalid budget ID provided');
+      return false;
+    }
+    
+    // First test Supabase connection and permissions
+    const testResult = await testSupabase();
+    if (!testResult) {
+      console.error('Supabase connection or permission test failed');
+      return false;
+    }
 
-      // Update local state
+    try {
+      // First delete all associated expenses (no dependencies)
+      const expenseResult = await deleteItem('expenses', budgetId, 'budget_id');
+      if (!expenseResult.success) {
+        console.log('Note: No expenses to delete or error deleting expenses', expenseResult.message);
+        // Continue anyway - just a warning
+      }
+      
+      // Then delete categories associated with this budget
+      const categoryResult = await deleteItem('categories', budgetId, 'budget_id');
+      if (!categoryResult.success) {
+        console.log('Note: No categories to delete or error deleting categories', categoryResult.message);
+        // Continue anyway - just a warning
+      }
+      
+      // Finally delete the budget itself
+      const result = await deleteItem('budgets', budgetId);
+      
+      if (!result.success) {
+        setError(result.message || 'Failed to delete budget');
+        return false;
+      }
+      
+      // Update local state on success
       setBudgets(prevBudgets => prevBudgets.filter(b => b.id !== budgetId));
       
       // If the deleted budget was selected, clear selection
@@ -229,8 +278,47 @@ export const BudgetProvider = ({ children }: { children: React.ReactNode }) => {
       
       return true;
     } catch (error: any) {
-      console.error('Error deleting budget:', error.message);
-      setError(error.message);
+      console.error('Error in deleteBudget:', error);
+      setError(error.message || 'An unexpected error occurred');
+      return false;
+    }
+  };
+  
+  // Delete a category and its associated expenses
+  const deleteCategory = async (categoryId: string): Promise<boolean> => {
+    console.log('Attempting to delete category with ID:', categoryId);
+    setError(null);
+    
+    if (!categoryId) {
+      setError('Invalid category ID provided');
+      return false;
+    }
+    
+    try {
+      // First delete associated expenses
+      const expenseResult = await deleteItem('expenses', categoryId, 'category_id');
+      if (!expenseResult.success) {
+        console.log('Note: No expenses found or error deleting expenses for category', expenseResult.message);
+        // Continue anyway
+      }
+      
+      // Then delete the category itself
+      const result = await deleteItem('categories', categoryId);
+      
+      if (!result.success) {
+        setError(result.message || 'Failed to delete category');
+        return false;
+      }
+      
+      // Update the UI by refetching budget details if a budget is selected
+      if (selectedBudget) {
+        await fetchBudgetDetails(selectedBudget.id);
+      }
+      
+      return true;
+    } catch (error: any) {
+      console.error('Error in deleteCategory:', error);
+      setError(error.message || 'An unexpected error occurred');
       return false;
     }
   };
@@ -276,10 +364,12 @@ export const BudgetProvider = ({ children }: { children: React.ReactNode }) => {
         createBudget,
         selectBudget,
         deleteBudget,
+        deleteCategory,
         fetchBudgetDetails,
         createCategory,
         createExpense,
-        updateBudget
+        updateBudget,
+        testSupabase
       }}
     >
       {children}

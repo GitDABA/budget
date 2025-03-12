@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
-import { PlusCircle, Trash2, Save, Download, Edit, Calendar, DollarSign, BarChart2 } from 'lucide-react';
+import { PlusCircle, Trash2, Save, Download, Edit, Calendar, DollarSign, BarChart2, AlertTriangle } from 'lucide-react';
+import { useBudget } from '@/contexts/BudgetContext';
+import { Category, Expense } from '@/lib/supabase';
 
 // Define months for use in the app (in Norwegian)
 const months = ['Januar', 'Februar', 'Mars', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Desember'];
@@ -13,50 +15,75 @@ const currentYear = new Date().getFullYear();
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#A28BFF', '#FF6B6B', '#4ECDC4', '#52BF90', '#2C786C', '#F8333C'];
 
 // Abbreviate text if too long
-const abbreviateText = (text, maxLength = 14) => {
+const abbreviateText = (text: string, maxLength = 14) => {
   if (!text) return '';
   if (text.length <= maxLength) return text;
   return text.substring(0, maxLength - 3) + '...';
 };
 
+interface CategoryWithSpent extends Category {
+  spent?: number;
+  remaining?: number;
+}
+
+interface ForecastData {
+  name: string;
+  month: number;
+  total: number;
+  cumulative?: number;
+  remaining?: number;
+  [key: string]: any; // Allow dynamic category names as properties
+}
+
 const BudgetTracker = () => {
+  // Get budget context
+  const { selectedBudget, fetchBudgetDetails, createCategory, createExpense, deleteCategory } = useBudget();
+  
   // Control modal visibility explicitly
   const [showSetupModal, setShowSetupModal] = useState(false);
   // State management
-  const [totalBudget, setTotalBudget] = useState(16000); // Default budget
-  const [categories, setCategories] = useState([
-    { id: 1, name: 'Mat / Drikke Dagligvare', color: COLORS[0], budget: 4000, visible: true },
-    { id: 2, name: 'Vinmonopolet', color: COLORS[1], budget: 2000, visible: true },
-    { id: 3, name: 'Holmenkollstafetten', color: COLORS[2], budget: 1500, visible: true },
-    { id: 4, name: 'Opplevelser', color: COLORS[3], budget: 2000, visible: true },
-    { id: 5, name: 'Leie av lokaler', color: COLORS[4], budget: 3000, visible: true },
-    { id: 6, name: 'Bonger', color: COLORS[5], budget: 1500, visible: true },
-    { id: 7, name: 'Foredragsholdere', color: COLORS[6], budget: 2000, visible: true }
-  ]);
+  const [totalBudget, setTotalBudget] = useState(0);
+  const [categories, setCategories] = useState<CategoryWithSpent[]>([]);
+  const [expenses, setExpenses] = useState<Expense[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [forecast, setForecast] = useState<ForecastData[]>([]);
   
-  const [expenses, setExpenses] = useState([
-    { id: 1, category: 1, description: 'Lunch med teamet', amount: 1500, date: '2025-03-05', recurring: 'monthly' },
-    { id: 2, category: 5, description: 'Booking av møterom', amount: 2500, date: '2025-04-15', recurring: 'one-time' },
-    { id: 3, category: 7, description: 'Honorar foredragsholder', amount: 4000, date: '2025-05-20', recurring: 'one-time' },
-    { id: 4, category: 2, description: 'Vin til sommerfest', amount: 3500, date: '2025-06-10', recurring: 'one-time' }
-  ]);
+  // Load budget data when selectedBudget changes
+  useEffect(() => {
+    const loadBudgetData = async () => {
+      if (!selectedBudget) return;
+      
+      setIsLoading(true);
+      // Set total budget from selected budget
+      setTotalBudget(selectedBudget.total_amount);
+      
+      // Fetch categories and expenses for the selected budget
+      const details = await fetchBudgetDetails(selectedBudget.id);
+      if (details) {
+        setCategories(details.categories);
+        setExpenses(details.expenses);
+      }
+      setIsLoading(false);
+    };
+    
+    loadBudgetData();
+  }, [selectedBudget, fetchBudgetDetails]);
   
   const [newCategory, setNewCategory] = useState({ name: '', budget: 0, color: COLORS[5] });
   const [newExpense, setNewExpense] = useState({
-    category: 1,
+    category_id: '',
     description: '',
     amount: 0,
     date: new Date().toISOString().split('T')[0],
-    recurring: 'one-time'
+    recurring: 'one-time' as 'one-time' | 'monthly'
   });
   
   const [isAddingCategory, setIsAddingCategory] = useState(false);
   const [isAddingExpense, setIsAddingExpense] = useState(false);
   const [activeView, setActiveView] = useState('dashboard');
-  const [forecast, setForecast] = useState([]);
 
   // Toggle category visibility
-  const toggleCategoryVisibility = (id) => {
+  const toggleCategoryVisibility = (id: string) => {
     setCategories(
       categories.map(category => 
         category.id === id 
@@ -73,7 +100,7 @@ const BudgetTracker = () => {
   const calculateSpentPerCategory = () => {
     return categories.map(category => {
       const spent = expenses
-        .filter(expense => expense.category === category.id)
+        .filter(expense => expense.category_id === category.id)
         .reduce((sum, expense) => {
           // Calculate actual spent based on recurring type
           let actualSpent = expense.amount;
@@ -103,9 +130,9 @@ const BudgetTracker = () => {
 
   // Generate forecast data
   const generateForecast = () => {
-    const monthlyData = months.map((month, index) => {
+    const monthlyData: ForecastData[] = months.map((month, index) => {
       // Initial data structure for this month
-      const monthData = {
+      const monthData: ForecastData = {
         name: month,
         month: index,
         total: 0
@@ -126,7 +153,7 @@ const BudgetTracker = () => {
       const expenseYear = expenseDate.getFullYear();
       
       // Find category name
-      const category = categories.find(c => c.id === expense.category);
+      const category = categories.find(c => c.id === expense.category_id);
       if (!category) return;
       
       if (expense.recurring === 'one-time') {
@@ -162,7 +189,7 @@ const BudgetTracker = () => {
     const visibleCategories = getVisibleCategoryIds();
     
     const totalSpent = expenses
-      .filter(expense => visibleCategories.includes(expense.category))
+      .filter(expense => visibleCategories.includes(expense.category_id))
       .reduce((sum, expense) => {
         if (expense.recurring === 'one-time') {
           return sum + expense.amount;
@@ -183,10 +210,10 @@ const BudgetTracker = () => {
   };
 
   // Add new category
-  const handleAddCategory = () => {
+  const handleAddCategory = async () => {
+    if (!selectedBudget) return;
+    
     if (newCategory.name && newCategory.budget > 0) {
-      const newId = categories.length > 0 ? Math.max(...categories.map(c => c.id)) + 1 : 1;
-      
       // Optional: Check if adding this category would exceed total budget
       const wouldExceedBudget = calculateUnallocatedBudget() - newCategory.budget < 0;
       
@@ -197,37 +224,103 @@ const BudgetTracker = () => {
         }
       }
       
-      setCategories([...categories, { ...newCategory, id: newId, color: COLORS[newId % COLORS.length], visible: true }]);
-      setNewCategory({ name: '', budget: 0 });
-      setIsAddingCategory(false);
+      // Create category with proper budget_id
+      const categoryToAdd = {
+        name: newCategory.name,
+        budget: newCategory.budget,
+        color: COLORS[categories.length % COLORS.length],
+        visible: true,
+        budget_id: selectedBudget.id
+      };
+      
+      // Use context function to create category in database
+      const newCat = await createCategory(categoryToAdd);
+      if (newCat) {
+        setCategories([...categories, newCat as CategoryWithSpent]);
+        setNewCategory({ name: '', budget: 0, color: COLORS[5] });
+        setIsAddingCategory(false);
+      }
     }
   };
 
   // Add new expense
-  const handleAddExpense = () => {
-    if (newExpense.description && newExpense.amount > 0) {
-      const newId = expenses.length > 0 ? Math.max(...expenses.map(e => e.id)) + 1 : 1;
-      setExpenses([...expenses, { ...newExpense, id: newId }]);
-      setNewExpense({
-        category: 1,
-        description: '',
-        amount: 0,
-        date: new Date().toISOString().split('T')[0],
-        recurring: 'one-time'
-      });
-      setIsAddingExpense(false);
+  const handleAddExpense = async () => {
+    if (!selectedBudget) return;
+    
+    if (newExpense.description && newExpense.amount > 0 && newExpense.category_id) {
+      // Create expense with proper budget_id
+      const expenseToAdd = {
+        description: newExpense.description,
+        amount: newExpense.amount,
+        category_id: newExpense.category_id,
+        date: newExpense.date,
+        recurring: newExpense.recurring,
+        budget_id: selectedBudget.id
+      };
+      
+      // Use context function to create expense in database
+      const newExp = await createExpense(expenseToAdd);
+      if (newExp) {
+        setExpenses([...expenses, newExp]);
+        setNewExpense({
+          category_id: '',
+          description: '',
+          amount: 0,
+          date: new Date().toISOString().split('T')[0],
+          recurring: 'one-time' as 'one-time' | 'monthly'
+        });
+        setIsAddingExpense(false);
+      }
     }
   };
 
   // Delete expense
-  const handleDeleteExpense = (id) => {
+  const handleDeleteExpense = (id: string) => {
     setExpenses(expenses.filter(expense => expense.id !== id));
   };
 
+  // State for delete confirmation modal
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [categoryToDelete, setCategoryToDelete] = useState<string | null>(null);
+
   // Delete category (and related expenses)
-  const handleDeleteCategory = (id) => {
-    setCategories(categories.filter(category => category.id !== id));
-    setExpenses(expenses.filter(expense => expense.category !== id));
+  const handleDeleteCategory = (id: string) => {
+    if (!id) return;
+    
+    // Show confirmation dialog
+    setCategoryToDelete(id);
+    setShowDeleteModal(true);
+  };
+  
+  // Handle confirmation of category deletion
+  const handleConfirmDelete = async () => {
+    if (!categoryToDelete) return;
+    
+    try {
+      console.log('Attempting to delete category:', categoryToDelete);
+      setIsLoading(true);
+      
+      // Close the modal first
+      setShowDeleteModal(false);
+      
+      // Use the context function to delete in the database
+      const success = await deleteCategory(categoryToDelete);
+      
+      if (success) {
+        console.log('Category successfully deleted');
+        // The category has been deleted from the database, update local state
+        setCategories(categories.filter(category => category.id !== categoryToDelete));
+        setExpenses(expenses.filter(expense => expense.category_id !== categoryToDelete));
+      } else {
+        console.error('Failed to delete category');
+        alert('Failed to delete category. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error deleting category:', error);
+      alert('An error occurred while deleting the category. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   // Update forecasts when data changes
@@ -236,7 +329,7 @@ const BudgetTracker = () => {
   }, [expenses, categories, totalBudget]);
 
   // Format currency
-  const formatCurrency = (amount) => {
+  const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('nb-NO', {
       style: 'currency',
       currency: 'NOK',
@@ -247,7 +340,10 @@ const BudgetTracker = () => {
   
   // Calculate total budget allocated to categories
   const calculateTotalAllocated = () => {
-    return categories.reduce((sum, category) => sum + category.budget, 0);
+    return categories.reduce((sum, category) => {
+      const budget = typeof category.budget === 'string' ? parseFloat(category.budget) : category.budget;
+      return sum + budget;
+    }, 0);
   };
   
   // Calculate unallocated budget
@@ -386,14 +482,14 @@ const BudgetTracker = () => {
               </div>
               <div className="flex justify-between mb-2">
                 <span>Gjenstående:</span>
-                <span className={totals.remaining < 0 ? 'text-red-600 font-bold' : 'text-green-600'}>
-                  {formatCurrency(totals.remaining)}
+                <span className={typeof totals.remaining === 'string' ? (parseFloat(totals.remaining) < 0 ? 'text-red-600 font-bold' : 'text-green-600') : (totals.remaining < 0 ? 'text-red-600 font-bold' : 'text-green-600')}>
+                  {formatCurrency(typeof totals.remaining === 'string' ? parseFloat(totals.remaining) : totals.remaining)}
                 </span>
               </div>
               <div className="w-full bg-gray-200 rounded-full h-4 mt-4">
                 <div 
-                  className={`h-4 rounded-full ${totals.percentUsed > 90 ? 'bg-red-500' : 'bg-blue-600'}`} 
-                  style={{ width: `${Math.min(100, totals.percentUsed)}%` }}
+                  className={`h-4 rounded-full ${parseFloat(totals.percentUsed) > 90 ? 'bg-red-500' : 'bg-blue-600'}`} 
+                  style={{ width: `${Math.min(100, parseFloat(totals.percentUsed))}%` }}
                 ></div>
               </div>
               <div className="text-center mt-2 text-sm">
@@ -408,9 +504,12 @@ const BudgetTracker = () => {
                       value={totalBudget}
                       onChange={(event) => setTotalBudget(Number(event.target.value))}
                       className="border rounded px-2 py-1 w-full"
+                      title="Totalt budsjett"
+                      placeholder="0"
                     />
                     <button 
                       className="ml-2 bg-blue-600 text-white px-3 py-1 rounded"
+                      title="Lagre budsjett"
                     >
                       <Save size={16} />
                     </button>
@@ -450,8 +549,8 @@ const BudgetTracker = () => {
                       ))}
                     </Pie>
                     <Tooltip 
-                      formatter={(value, name) => [formatCurrency(value), name]}
-                      itemSorter={(item) => -item.value}
+                      formatter={(value: number, name) => [formatCurrency(value), name]}
+                      itemSorter={(item) => item.value !== undefined ? -item.value : 0}
                     />
                     <Legend 
                       layout="vertical" 
@@ -490,9 +589,10 @@ const BudgetTracker = () => {
                 <div>
                   <label className="block text-sm font-medium mb-1">Kategori</label>
                   <select 
-                    value={newExpense.category}
-                    onChange={(event) => setNewExpense({...newExpense, category: Number(event.target.value)})}
+                    value={newExpense.category_id}
+                    onChange={(event) => setNewExpense({...newExpense, category_id: event.target.value})}
                     className="border rounded px-2 py-1 w-full"
+                    title="Velg kategori"
                   >
                     {categories.map(category => (
                       <option key={category.id} value={category.id}>{category.name}</option>
@@ -532,11 +632,17 @@ const BudgetTracker = () => {
                   <label className="block text-sm font-medium mb-1">Frekvens</label>
                   <select 
                     value={newExpense.recurring}
-                    onChange={(event) => setNewExpense({...newExpense, recurring: event.target.value})}
+                    onChange={(event) => {
+                      const value = event.target.value;
+                      if (value === 'one-time' || value === 'monthly') {
+                        setNewExpense({...newExpense, recurring: value});
+                      }
+                    }}
                     className="border rounded px-2 py-1 w-full"
+                    title="Velg frekvens"
                   >
-                    <option value="one-time">Engangs</option>
-                    <option value="monthly">Månedlig</option>
+                    <option value="one-time" key="one-time">Engangs</option>
+                    <option value="monthly" key="monthly">Månedlig</option>
                   </select>
                 </div>
                 <div className="flex items-end">
@@ -564,8 +670,8 @@ const BudgetTracker = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {expenses.slice().sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 5).map(expense => {
-                      const category = categories.find(c => c.id === expense.category);
+                    {expenses.slice().sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).slice(0, 5).map(expense => {
+                      const category = categories.find(c => c.id === expense.category_id);
                       return (
                         <tr key={expense.id} className="border-b">
                           <td className="py-2">
@@ -731,6 +837,7 @@ const BudgetTracker = () => {
                             ? 'bg-green-100 text-green-800 hover:bg-green-200' 
                             : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
                         }`}
+                        title={`${category.visible ? 'Skjul' : 'Vis'} kategori`}
                       >
                         {category.visible ? 'Ja' : 'Nei'}
                       </button>
@@ -747,7 +854,7 @@ const BudgetTracker = () => {
                 ))}
                 <tr className="border-b bg-blue-50">
                   <td className="py-3 font-bold">Total</td>
-                  <td className="py-3 font-bold">{formatCurrency(calculateTotalAllocated())}</td>
+                  <td className="py-3 font-bold">{formatCurrency(Number(calculateTotalAllocated()))}</td>
                   <td className="py-3 font-bold">100%</td>
                   <td className="py-3 font-bold">{formatCurrency(totals.spent)}</td>
                   <td className="py-3 font-bold">{formatCurrency(totals.remaining)}</td>
@@ -755,8 +862,8 @@ const BudgetTracker = () => {
                     <div className="flex items-center">
                       <div className="w-full bg-gray-200 rounded-full h-3 mr-2">
                         <div 
-                          className={`h-3 rounded-full ${totals.percentUsed > 90 ? 'bg-red-500' : 'bg-blue-600'}`} 
-                          style={{ width: `${Math.min(100, totals.percentUsed)}%` }}
+                          className={`h-3 rounded-full ${parseFloat(totals.percentUsed) > 90 ? 'bg-red-500' : 'bg-blue-600'}`} 
+                          style={{ width: `${Math.min(100, parseFloat(totals.percentUsed))}%` }}
                         ></div>
                       </div>
                       <span className="text-sm">{totals.percentUsed}%</span>
@@ -766,7 +873,7 @@ const BudgetTracker = () => {
                 <tr className={`${calculateUnallocatedBudget() < 0 ? 'bg-red-50 text-red-700' : 'bg-green-50 text-green-700'}`}>
                   <td className="py-3 font-medium">Ufordelt budsjett</td>
                   <td className="py-3 font-bold" colSpan="7">
-                    {formatCurrency(calculateUnallocatedBudget())}
+                    {formatCurrency(Number(calculateUnallocatedBudget()))}
                     {calculateUnallocatedBudget() < 0 && 
                       <span className="ml-2 text-xs text-red-600">
                         Advarsel: Du har fordelt mer enn totalbudsjettet!
@@ -787,6 +894,7 @@ const BudgetTracker = () => {
               <button 
                 onClick={() => setIsAddingExpense(!isAddingExpense)} 
                 className="bg-blue-600 text-white px-3 py-1 rounded flex items-center"
+                title="Legg til ny utgift"
               >
                 <PlusCircle size={16} className="mr-1" /> Legg til utgift
               </button>
@@ -800,9 +908,10 @@ const BudgetTracker = () => {
                   <div>
                     <label className="block text-sm font-medium mb-1">Kategori</label>
                     <select 
-                      value={newExpense.category}
-                      onChange={(event) => setNewExpense({...newExpense, category: Number(event.target.value)})}
+                      value={newExpense.category_id}
+                      onChange={(event) => setNewExpense({...newExpense, category_id: event.target.value})}
                       className="border rounded px-2 py-1 w-full"
+                      title="Velg kategori"
                     >
                       {categories.map(category => (
                         <option key={category.id} value={category.id}>{category.name}</option>
@@ -842,7 +951,12 @@ const BudgetTracker = () => {
                     <label className="block text-sm font-medium mb-1">Frekvens</label>
                     <select 
                       value={newExpense.recurring}
-                      onChange={(event) => setNewExpense({...newExpense, recurring: event.target.value})}
+                      onChange={(event) => {
+                    const value = event.target.value;
+                    if (value === 'one-time' || value === 'monthly') {
+                      setNewExpense({...newExpense, recurring: value as 'one-time' | 'monthly'});
+                    }
+                  }}
                       className="border rounded px-2 py-1 w-full"
                     >
                       <option value="one-time">Engangs</option>
@@ -881,17 +995,17 @@ const BudgetTracker = () => {
                 </tr>
               </thead>
               <tbody>
-                {expenses.slice().sort((a, b) => new Date(b.date) - new Date(a.date)).map(expense => {
-                  const category = categories.find(c => c.id === expense.category);
+                {expenses.slice().sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).map(expense => {
+                  const category = categories.find(c => c.id === expense.category_id);
                   return (
                     <tr key={expense.id} className="border-b">
                       <td className="py-3" title={expense.description}>
                         {abbreviateText(expense.description, 20)}
                       </td>
                       <td className="py-3">
-                        <div className="flex items-center" title={category?.name}>
-                          <div className="w-3 h-3 rounded-full mr-2" style={{ backgroundColor: category?.color }}></div>
-                          {abbreviateText(category?.name, 12)}
+                        <div className="flex items-center" title={category?.name || 'Ukjent kategori'}>
+                          <div className="w-3 h-3 rounded-full mr-2" style={{ backgroundColor: category?.color || '#ccc' }}></div>
+                          {abbreviateText(category?.name || 'Ukjent kategori', 12)}
                         </div>
                       </td>
                       <td className="py-3">{formatCurrency(expense.amount)}</td>
@@ -907,6 +1021,7 @@ const BudgetTracker = () => {
                         <button 
                           onClick={() => handleDeleteExpense(expense.id)}
                           className="text-red-600 hover:text-red-800"
+                          title="Slett utgift"
                         >
                           <Trash2 size={16} />
                         </button>
@@ -1046,13 +1161,13 @@ const BudgetTracker = () => {
                         <td className="py-2 font-medium">{month.name}</td>
                         {categories.filter(c => c.visible).map(category => (
                           <td key={category.id} className="py-2">
-                            {month[category.name] > 0 ? formatCurrency(month[category.name]) : '-'}
+                            {(month[category.name] ?? 0) > 0 ? formatCurrency(month[category.name] ?? 0) : '-'}
                           </td>
                         ))}
-                        <td className="py-2">{formatCurrency(month.total)}</td>
-                        <td className="py-2">{formatCurrency(month.cumulative)}</td>
-                        <td className={`py-2 ${month.remaining < 0 ? 'text-red-600 font-bold' : ''}`}>
-                          {formatCurrency(month.remaining)}
+                        <td className="py-2">{formatCurrency(month.total ?? 0)}</td>
+                        <td className="py-2">{formatCurrency(month.cumulative ?? 0)}</td>
+                        <td className={`py-2 ${(month.remaining ?? 0) < 0 ? 'text-red-600 font-bold' : ''}`}>
+                          {formatCurrency(month.remaining ?? 0)}
                         </td>
                       </tr>
                     ))}
@@ -1078,6 +1193,40 @@ const BudgetTracker = () => {
             </div>
           </footer>
         </>
+      )}
+      
+      {/* Delete Category Confirmation Modal */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center">
+          <div 
+            className="bg-white dark:bg-gray-800 p-6 rounded-xl w-full max-w-md shadow-lg relative overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center mb-4 text-red-500">
+              <AlertTriangle className="mr-2" size={24} />
+              <h3 className="text-xl font-bold">Delete Category</h3>
+            </div>
+            <p className="text-gray-700 dark:text-gray-300 mb-6">
+              Are you sure you want to delete this category? This action cannot be undone and will remove all expenses associated with this category.
+            </p>
+            <div className="flex justify-end gap-3 mt-6">
+              <button
+                type="button"
+                onClick={() => setShowDeleteModal(false)}
+                className="px-4 py-2 bg-gray-200 rounded text-gray-800 hover:bg-gray-300 font-medium"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmDelete}
+                className="px-4 py-2 bg-red-500 rounded text-white hover:bg-red-600 font-medium disabled:bg-red-300 disabled:cursor-not-allowed"
+              >
+                Delete Category
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

@@ -14,7 +14,8 @@ export default function BudgetSelector() {
     error, 
     createBudget, 
     selectBudget,
-    deleteBudget 
+    deleteBudget,
+    testSupabase 
   } = useBudget();
 
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -43,9 +44,71 @@ export default function BudgetSelector() {
   
   const handleConfirmDelete = async () => {
     if (budgetToDelete) {
-      await deleteBudget(budgetToDelete);
-      setBudgetToDelete(null);
-      setShowDeleteModal(false);
+      console.log('Confirming deletion of budget:', budgetToDelete);
+      console.log('Budget ID type:', typeof budgetToDelete);
+      console.log('Budget ID value:', budgetToDelete);
+      try {
+        // Show loading state
+        const deleteButton = document.getElementById('confirm-delete-button');
+        if (deleteButton) {
+          deleteButton.textContent = 'Deleting...';
+          deleteButton.setAttribute('disabled', 'true');
+        }
+        
+        // First test the Supabase connection
+        console.log('Testing Supabase connection before deletion...');
+        try {
+          const testResult = await testSupabase();
+          console.log('Connection test result:', testResult);
+          if (!testResult) {
+            console.error('Database connection test failed');
+            alert('Database connection test failed. Cannot proceed with deletion.');
+            if (deleteButton) {
+              deleteButton.textContent = 'Delete Budget';
+              deleteButton.removeAttribute('disabled');
+            }
+            return;
+          }
+        } catch (testError) {
+          console.error('Error testing database connection:', testError);
+          alert('Error testing database connection. Cannot proceed with deletion.');
+          if (deleteButton) {
+            deleteButton.textContent = 'Delete Budget';
+            deleteButton.removeAttribute('disabled');
+          }
+          return;
+        }
+        
+        const success = await deleteBudget(budgetToDelete);
+        console.log('Delete operation completed with success status:', success);
+        
+        if (success) {
+          // Success - close the modal and reset
+          setBudgetToDelete(null);
+          setShowDeleteModal(false);
+          // Force refresh budgets list
+          window.location.reload();
+        } else {
+          // Error - show error message and re-enable button
+          console.error('Failed to delete budget');
+          alert('Failed to delete budget. Please check the console for details.');
+          if (deleteButton) {
+            deleteButton.textContent = 'Delete Budget';
+            deleteButton.removeAttribute('disabled');
+          }
+        }
+      } catch (error) {
+        console.error('Error in handleConfirmDelete:', error);
+        alert(`Error deleting budget: ${error instanceof Error ? error.message : 'Unknown error'}`)
+        const deleteButton = document.getElementById('confirm-delete-button');
+        if (deleteButton) {
+          deleteButton.textContent = 'Delete Budget';
+          deleteButton.removeAttribute('disabled');
+        }
+      }
+    } else {
+      console.error('No budget ID set for deletion');
+      alert('No budget selected for deletion.');
     }
   };
 
@@ -90,14 +153,33 @@ export default function BudgetSelector() {
       <div className="absolute inset-0 dot-pattern opacity-5"></div>
       <AnimatedContainer className="relative" variant="fadeIn" duration={0.4}>
         <div className="flex justify-between items-center mb-6">
-          <motion.h2 
-            className="text-xl font-bold bg-gradient-to-r from-primary-600 to-primary-800 bg-clip-text text-transparent dark:from-primary-400 dark:to-primary-600"
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
-          >
-            My Budgets
-          </motion.h2>
+          <div className="flex items-center gap-3">
+            <motion.h2 
+              className="text-xl font-bold bg-gradient-to-r from-primary-600 to-primary-800 bg-clip-text text-transparent dark:from-primary-400 dark:to-primary-600"
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              My Budgets
+            </motion.h2>
+            <button 
+              onClick={async () => {
+                console.log('Testing Supabase connection...');
+                try {
+                  const testResult = await testSupabase();
+                  console.log('Test result:', testResult);
+                  alert(testResult ? 'Database connection successful!' : 'Database connection failed');
+                } catch (error) {
+                  console.error('Test error:', error);
+                  alert('Test error: ' + (error instanceof Error ? error.message : 'Unknown error'));
+                }
+              }}
+              className="text-xs bg-blue-200 hover:bg-blue-300 text-blue-800 px-2 py-1 rounded"
+              title="Test database connection"
+            >
+              Test DB
+            </button>
+          </div>
           <motion.button
             onClick={() => setShowCreateModal(true)}
             className="btn btn-primary btn-md flex items-center gap-2"
@@ -178,8 +260,19 @@ export default function BudgetSelector() {
                         <motion.button 
                           aria-label="Delete budget"
                           title="Delete budget"
-                          className="text-gray-400 hover:text-destructive transition-colors rounded-full p-1 hover:bg-destructive-50 dark:hover:bg-destructive/10"
-                          onClick={(e) => handleDeleteClick(e, budget.id)}
+                          className="text-gray-400 hover:text-destructive transition-colors rounded-full p-1 hover:bg-destructive-50 dark:hover:bg-destructive/10 z-10"
+                          onClick={(e) => {
+                            // Stop propagation to parent elements
+                            e.preventDefault();
+                            e.stopPropagation();
+                            
+                            // Log the click event for debugging
+                            console.log('Delete button clicked for budget:', budget.id);
+                            
+                            // Set state for the delete modal
+                            setBudgetToDelete(budget.id);
+                            setShowDeleteModal(true);
+                          }}
                           whileHover={{ scale: 1.1 }}
                           whileTap={{ scale: 0.9 }}
                         >
@@ -214,6 +307,48 @@ export default function BudgetSelector() {
           </div>
         )}
       </AnimatedContainer>
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center">
+          <div 
+            className="bg-white dark:bg-gray-800 p-6 rounded-xl w-full max-w-md shadow-lg relative overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center mb-4 text-red-500">
+              <AlertTriangle className="mr-2" size={24} />
+              <h3 className="text-xl font-bold">Delete Budget</h3>
+            </div>
+            <p className="text-gray-700 dark:text-gray-300 mb-6">
+              Are you sure you want to delete this budget? This action cannot be undone and will remove all categories and expenses associated with this budget.
+            </p>
+            <div className="flex justify-end gap-3 mt-6">
+              <button
+                type="button"
+                onClick={() => {
+                  console.log('Cancel clicked');
+                  setShowDeleteModal(false);
+                  setBudgetToDelete(null);
+                }}
+                className="px-4 py-2 bg-gray-200 rounded text-gray-800 hover:bg-gray-300 font-medium"
+              >
+                Cancel
+              </button>
+              <button
+                id="confirm-delete-button"
+                type="button"
+                onClick={() => {
+                  console.log('Confirm delete clicked with budget:', budgetToDelete);
+                  handleConfirmDelete();
+                }}
+                className="px-4 py-2 bg-red-500 rounded text-white hover:bg-red-600 font-medium disabled:bg-red-300 disabled:cursor-not-allowed"
+              >
+                Delete Budget
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Create Budget Modal */}
       <AnimatePresence>

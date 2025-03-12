@@ -258,6 +258,15 @@
     color: #1f2937;
   }
 
+  .btn-destructive {
+    background-color: #ef4444;
+    color: white;
+  }
+  
+  .btn-destructive:hover {
+    background-color: #dc2626;
+  }
+
   .btn-ghost:hover {
     background-color: #f3f4f6;
     color: #1f2937;
@@ -332,6 +341,15 @@
     width: 100%;
     border-radius: 9999px;
     background-color: rgba(243, 244, 246, 0.5);
+  }
+  
+  .modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 100;
   }
   
   @keyframes pulse {
