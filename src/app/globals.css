@@ -1,26 +1,342 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
+@layer base {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+    --primary: 221.2 83.2% 53.3%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 221.2 83.2% 53.3%;
+    --radius: 0.5rem;
+  }
+ 
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 217.2 91.2% 59.8%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 224.3 76.3% 48%;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer base {
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+  body {
+    @apply bg-white text-gray-900 dark:bg-gray-900 dark:text-gray-100;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
 }
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+    
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+    
+    --primary: 221.2 83.2% 53.3%;
+    --primary-foreground: 210 40% 98%;
+    --primary-50: 213.8 100% 96.9%;
+    --primary-100: 214.3 94.6% 92.7%;
+    --primary-200: 213.3 96.9% 87.3%;
+    --primary-300: 211.7 96.4% 78.4%;
+    --primary-400: 213.1 93.9% 67.8%;
+    --primary-500: 217.2 91.2% 59.8%;
+    --primary-600: 221.2 83.2% 53.3%;
+    --primary-700: 224.3 76.3% 48%;
+    --primary-800: 225.9 70.7% 40.2%;
+    --primary-900: 224.4 64.3% 32.9%;
+    
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+    
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+    
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --success: 142.1 76.2% 36.3%;
+    --success-foreground: 210 40% 98%;
+
+    --warning: 38 92% 50%;
+    --warning-foreground: 210 40% 98%;
+    
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 221.2 83.2% 53.3%;
+    
+    --radius: 0.5rem;
+
+    --grid-color: rgba(0, 0, 0, 0.03);
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+    
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+    
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+    
+    --primary: 217.2 91.2% 59.8%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+    
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+    
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+    
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    --success: 142.1 70.6% 45.3%;
+    --success-foreground: 210 40% 98%;
+
+    --warning: 48 96% 53%;
+    --warning-foreground: 210 40% 98%;
+    
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 224.3 76.3% 48%;
+
+    --grid-color: rgba(255, 255, 255, 0.03);
+  }
+}
+
+@layer base {
+  body {
+    background-color: white;
+    color: #111827;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+  
+  .dark body {
+    background-color: #111827;
+    color: #f3f4f6;
+  }
+}
+
+@layer components {
+  .animate-in {
+    animation-delay: calc(var(--index) * 100ms);
+  }
+
+  .budget-card {
+    position: relative;
+    overflow: hidden;
+    background-color: white;
+    color: #111827;
+    border-radius: 0.5rem;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    transition: all 0.2s ease;
+  }
+  
+  .budget-card:hover {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  }
+
+  .budget-card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: linear-gradient(to bottom right, transparent, transparent, rgba(37, 99, 235, 0.05));
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .budget-card:hover::before {
+    opacity: 1;
+  }
+
+  .form-input {
+    padding: 0.5rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.375rem;
+    background-color: white;
+    transition: all 0.2s ease;
+  }
+  
+  .form-input:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.5);
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.375rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: colors 0.15s ease;
+  }
+  
+  .btn:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px white, 0 0 0 4px #2563eb;
+  }
+  
+  .btn:disabled {
+    pointer-events: none;
+    opacity: 0.5;
+  }
+
+  .btn-primary {
+    background-color: #2563eb;
+    color: white;
+  }
+  
+  .btn-primary:hover {
+    background-color: rgba(37, 99, 235, 0.9);
+  }
+
+  .btn-secondary {
+    background-color: #f3f4f6;
+    color: #1f2937;
+  }
+  
+  .btn-secondary:hover {
+    background-color: rgba(243, 244, 246, 0.8);
+  }
+
+  .btn-outline {
+    border: 1px solid #e5e7eb;
+    background-color: white;
+  }
+  
+  .btn-outline:hover {
+    background-color: #f3f4f6;
+    color: #1f2937;
+  }
+
+  .btn-ghost:hover {
+    background-color: #f3f4f6;
+    color: #1f2937;
+  }
+
+  .btn-sm { 
+    height: 2.25rem;
+    border-radius: 0.375rem;
+    padding: 0 0.75rem;
+  }
+  
+  .btn-md { 
+    height: 2.5rem;
+    padding: 0 1rem;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+  }
+  
+  .btn-lg { 
+    height: 2.75rem;
+    border-radius: 0.375rem;
+    padding: 0 2rem;
+  }
+
+  .card-gradient-overlay {
+    position: absolute;
+    inset: 0;
+    background-image: linear-gradient(to bottom right, transparent, transparent, rgba(37, 99, 235, 0.1));
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  
+  .group:hover .card-gradient-overlay {
+    opacity: 1;
+  }
+
+  .dot-pattern {
+    background-size: 20px 20px;
+    background-image: radial-gradient(circle, var(--grid-color) 1px, transparent 1px);
+  }
+
+  .shimmer {
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .shimmer::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background-image: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.2), transparent);
+    animation: shimmer 2s infinite linear;
+  }
+  
+  @keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+  }
+
+  .loading-card {
+    border-radius: 0.5rem;
+    border: 1px solid #e5e7eb;
+    background-color: white;
+    padding: 1rem;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.06);
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  .loading-bar {
+    height: 1rem;
+    width: 100%;
+    border-radius: 9999px;
+    background-color: rgba(243, 244, 246, 0.5);
+  }
+  
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+}
+
