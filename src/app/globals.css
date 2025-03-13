@@ -2,6 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Fix for dark mode chart text */
+.dark text {
+  fill: white !important;
+  color: white !important;
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -56,8 +62,19 @@
     padding: 0;
   }
   body {
-    @apply bg-white text-gray-900 dark:bg-gray-900 dark:text-gray-100;
+    @apply bg-white text-gray-900 dark:bg-background-dark dark:text-gray-100;
     font-feature-settings: "rlig" 1, "calt" 1;
+  }
+  
+  .bg-app-secondary {
+    @apply bg-dark-grey dark:bg-background-dark;
+  }
+  
+  /* Enhanced dark mode text and indicators */
+  .dark {
+    --text-primary: 210 40% 98%;
+    --text-secondary: 210 40% 90%;
+    --indicator-color: 210 40% 98%;
   }
 }
 
@@ -113,13 +130,13 @@
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
+    --background: 0 0% 7%; /* rgb(17, 24, 39) */
     --foreground: 210 40% 98%;
     
-    --card: 222.2 84% 4.9%;
+    --card: 0 0% 12%; /* rgb(31, 41, 55) */
     --card-foreground: 210 40% 98%;
     
-    --popover: 222.2 84% 4.9%;
+    --popover: 0 0% 12%; /* rgb(31, 41, 55) */
     --popover-foreground: 210 40% 98%;
     
     --primary: 217.2 91.2% 59.8%;
@@ -153,13 +170,13 @@
 
 @layer base {
   body {
-    background-color: white;
+    background-color: #FFFFFF; /* White */
     color: #111827;
     font-feature-settings: "rlig" 1, "calt" 1;
   }
   
   .dark body {
-    background-color: #111827;
+    background-color: rgb(17, 24, 39); /* Standardized dark background */
     color: #f3f4f6;
   }
 }
@@ -172,12 +189,18 @@
   .budget-card {
     position: relative;
     overflow: hidden;
-    background-color: white;
+    background-color: #FFFFFF; /* White */
     color: #111827;
     border-radius: 0.5rem;
     border: 1px solid #e5e7eb;
     box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
     transition: all 0.2s ease;
+  }
+  
+  .dark .budget-card {
+    background-color: rgb(31, 41, 55); /* Standardized dark card background */
+    border-color: rgba(255, 255, 255, 0.1);
+    color: #f3f4f6;
   }
   
   .budget-card:hover {
@@ -202,7 +225,14 @@
     border: 1px solid #e5e7eb;
     border-radius: 0.375rem;
     background-color: white;
+    color: #1f2937;
     transition: all 0.2s ease;
+  }
+  
+  .dark .form-input {
+    background-color: #1e293b;
+    border-color: #374151;
+    color: white;
   }
   
   .form-input:focus {
@@ -235,8 +265,17 @@
     color: white;
   }
   
+  .dark .btn-primary {
+    background-color: #3b82f6;
+    color: white;
+  }
+  
   .btn-primary:hover {
     background-color: rgba(37, 99, 235, 0.9);
+  }
+  
+  .dark .btn-primary:hover {
+    background-color: #2563eb;
   }
 
   .btn-secondary {
@@ -251,11 +290,23 @@
   .btn-outline {
     border: 1px solid #e5e7eb;
     background-color: white;
+    color: #1f2937;
+  }
+  
+  .dark .btn-outline {
+    border-color: #4b5563;
+    background-color: transparent;
+    color: #e5e7eb;
   }
   
   .btn-outline:hover {
     background-color: #f3f4f6;
     color: #1f2937;
+  }
+  
+  .dark .btn-outline:hover {
+    background-color: rgba(75, 85, 99, 0.3);
+    color: white;
   }
 
   .btn-destructive {
