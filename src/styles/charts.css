@@ -1,0 +1,186 @@
+/* Chart styles */
+.category-color {
+  background-color: var(--category-color, #ccc);
+}
+
+/* Category color indicator for expense list */
+.category-color-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 8px;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+/* Chart spacing adjustments */
+.chart-container {
+  padding: 1rem;
+  padding-top: 0.5rem;
+}
+
+/* Chart wrapper for proper sizing */
+.chart-wrapper {
+  height: 350px;
+  max-width: 100%;
+  margin-bottom: 16px;
+}
+
+.chart-wrapper:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+  transition: background-color 0.3s ease;
+}
+
+/* Ensures axis labels don't get cut off */
+.recharts-wrapper {
+  margin-left: -5px;
+  margin-right: -5px;
+}
+
+/* Make sure no content is cut off in charts */
+.recharts-cartesian-axis-tick-value {
+  text-anchor: middle;
+}
+
+/* Consistent padding for chart containers */
+.chart-inner-container {
+  padding: 16px;
+  padding-top: 8px;
+}
+
+/* Ensures tooltip content is visible */
+.recharts-tooltip-wrapper {
+  z-index: 10;
+}
+
+.recharts-tooltip-wrapper:hover {
+  background-color: rgba(0, 0, 0, 0.1);
+  transition: background-color 0.3s ease;
+}
+
+/* Tooltip custom styling */
+.recharts-default-tooltip {
+  background-color: rgba(32, 32, 32, 0.9) !important;
+  border: 1px solid #444 !important;
+  border-radius: 6px !important;
+  padding: 10px !important;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3) !important;
+}
+
+.recharts-tooltip-item-list {
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.recharts-tooltip-item {
+  color: #ffffff !important;
+  margin-bottom: 4px !important;
+}
+
+.recharts-tooltip-label {
+  color: #ffffff !important;
+  font-weight: bold !important;
+  margin-bottom: 6px !important;
+}
+
+/* Custom tooltip styling */
+.custom-tooltip {
+  background-color: #1e1e1e;
+  border: 1px solid #444;
+  border-radius: 6px;
+  padding: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  color: white;
+  max-width: 300px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.custom-tooltip p {
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+/* Apply this script after render to fix tooltip colors
+document.querySelectorAll('.tooltip-color-indicator[data-color]').forEach(indicator => {
+  const color = indicator.getAttribute('data-color');
+  indicator.style.backgroundColor = color;
+});
+*/
+
+/* Tooltip colored indicator */
+.tooltip-color-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 6px;
+  overflow: hidden;
+}
+
+/* Dynamic color classes for tooltips */
+.tooltip-color-blue { color: #5570F6; }
+.tooltip-color-green { color: #10B981; }
+.tooltip-color-yellow { color: #F59E0B; }
+.tooltip-color-orange { color: #F97316; }
+.tooltip-color-red { color: #EF4444; }
+.tooltip-color-purple { color: #8B5CF6; }
+.tooltip-color-indigo { color: #6366F1; }
+.tooltip-color-pink { color: #EC4899; }
+.tooltip-color-teal { color: #14B8A6; }
+.tooltip-color-cyan { color: #06B6D4; }
+
+/* Category color indicator */
+.category-color-indicator {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  margin-right: 8px;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+/* Dynamic category color class */
+.category-color[data-color] {
+  background-color: var(--category-color);
+}
+
+/* Consistent chart colors */
+.chart-color-blue {
+  color: #5570F6;
+  background-color: #5570F6;
+}
+
+.chart-color-green {
+  color: #10B981;
+  background-color: #10B981;
+}
+
+.chart-color-yellow {
+  color: #F59E0B;
+  background-color: #F59E0B;
+}
+
+.chart-color-orange {
+  color: #F97316;
+  background-color: #F97316;
+}
+
+.chart-color-red {
+  color: #EF4444;
+  background-color: #EF4444;
+}
+
+/* Proper spacing between sections */
+.section-spacing {
+  margin-bottom: 24px;
+}
+
+/* Prevents long category names from breaking layout */
+.category-name {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 120px;
+  display: inline-block;
+}
