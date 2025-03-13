@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { BarChart2 } from 'lucide-react';
 import { useBudget } from '@/contexts/BudgetContext';
 import { useTheme } from '@/contexts/ThemeContext';
-import { CategoryWithSpent, ForecastData, ViewType, NewCategoryData, NewExpenseData } from './BudgetTypes';
+import { CategoryWithSpent, ForecastData, NewCategoryData, NewExpenseData } from './BudgetTypes';
 import { calculateSpentPerCategory, calculateTotals } from './BudgetCalculations';
 import { formatCurrency } from './BudgetCalculations';
 import { Expense } from '@/lib/supabase';
@@ -13,6 +12,8 @@ import CategoriesView from './CategoriesView';
 import ExpensesView from './ExpensesView';
 import ForecastView from './ForecastView';
 import SetupModal from './SetupModal';
+import TabsContainer from './TabsContainer';
+import BudgetHeader from './BudgetHeader';
 
 // Define months for use in the app (in Norwegian)
 const months = ['Januar', 'Februar', 'Mars', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Desember'];
@@ -24,7 +25,7 @@ const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#A28BFF', '#FF6B6B'
 
 const BudgetTracker: React.FC = () => {
   // Get budget context
-  const { selectedBudget, fetchBudgetDetails, createCategory, createExpense, deleteCategory, deleteExpense, updateBudget, updateCategory } = useBudget();
+  const { selectedBudget, fetchBudgetDetails, createCategory, createExpense, deleteCategory, deleteExpense, updateBudget, updateCategory, updateExpense } = useBudget();
   // Get theme context
   const { theme } = useTheme();
   
@@ -37,7 +38,7 @@ const BudgetTracker: React.FC = () => {
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [forecast, setForecast] = useState<ForecastData[]>([]);
-  const [activeView, setActiveView] = useState<ViewType>('dashboard');
+  const [activeTab, setActiveTab] = useState<'overview' | 'categories' | 'expenses' | 'forecast'>('overview');
   
   // Load budget data when selectedBudget changes
   useEffect(() => {
@@ -95,20 +96,25 @@ const BudgetTracker: React.FC = () => {
       const category = categories.find(c => c.id === expense.category_id);
       if (!category) return;
       
+      // Determine the expense amount to use based on whether it's actual or planned
+      // For actual expenses, use the actual amount
+      // For planned expenses, use the budgeted amount
+      const expenseAmount = expense.is_actual ? expense.amount : expense.budgeted_amount;
+      
       // Handle one-time expenses
       if (expense.recurring === 'one-time') {
         // Only include if it's for the current year
         if (expenseYear === currentYear) {
-          monthlyData[expenseMonth][category.name] = (monthlyData[expenseMonth][category.name] || 0) + expense.amount;
-          monthlyData[expenseMonth].total = (monthlyData[expenseMonth].total || 0) + expense.amount;
+          monthlyData[expenseMonth][category.name] = (monthlyData[expenseMonth][category.name] || 0) + expenseAmount;
+          monthlyData[expenseMonth].total = (monthlyData[expenseMonth].total || 0) + expenseAmount;
         }
       } 
       // Handle monthly recurring expenses
       else if (expense.recurring === 'monthly') {
         // Apply to each month from expense date to end of year
         for (let i = expenseMonth; i < 12; i++) {
-          monthlyData[i][category.name] = (monthlyData[i][category.name] || 0) + expense.amount;
-          monthlyData[i].total = (monthlyData[i].total || 0) + expense.amount;
+          monthlyData[i][category.name] = (monthlyData[i][category.name] || 0) + expenseAmount;
+          monthlyData[i].total = (monthlyData[i].total || 0) + expenseAmount;
         }
       }
     });
@@ -173,13 +179,20 @@ const BudgetTracker: React.FC = () => {
     if (!selectedBudget) return;
     
     try {
+      // Determine if this is an actual expense or a budgeted one
+      const isActual = newExpenseData.is_actual !== undefined ? newExpenseData.is_actual : true;
+      
       const newExpense = await createExpense({
         budget_id: selectedBudget.id,
         category_id: newExpenseData.category_id,
         description: newExpenseData.description,
-        amount: newExpenseData.amount,
+        // If it's an actual expense, use the actual amount. Otherwise set to 0
+        amount: isActual ? newExpenseData.amount : 0,
+        // For planned expenses, use budgeted_amount. For actual expenses with no budgeted_amount, use amount as fallback
+        budgeted_amount: isActual ? (newExpenseData.budgeted_amount || newExpenseData.amount || 0) : (newExpenseData.budgeted_amount || 0),
         date: newExpenseData.date,
-        recurring: newExpenseData.recurring
+        recurring: newExpenseData.recurring,
+        is_actual: isActual
       });
       
       if (newExpense) {
@@ -187,6 +200,36 @@ const BudgetTracker: React.FC = () => {
       }
     } catch (error) {
       console.error('Error adding expense:', error);
+    }
+  };
+  
+  // Handle updating an existing expense
+  const handleUpdateExpense = async (expenseId: string, updatedData: Partial<Expense>) => {
+    if (!selectedBudget) return;
+    
+    try {
+      // Make sure both actual and budgeted amounts are properly handled
+      const dataToUpdate = {
+        ...updatedData,
+        // If this is an actual expense, ensure amount is set correctly
+        amount: updatedData.is_actual ? (updatedData.amount ?? 0) : 0,
+        // Ensure budgeted_amount is set correctly - default to 0 if both are undefined
+        budgeted_amount: updatedData.budgeted_amount ?? updatedData.amount ?? 0,
+      };
+      
+      const updatedExpense = await updateExpense({
+        id: expenseId,
+        ...dataToUpdate
+      });
+      
+      if (updatedExpense) {
+        // Update the expense in the local state
+        setExpenses(expenses.map(exp => 
+          exp.id === expenseId ? { ...exp, ...dataToUpdate } : exp
+        ));
+      }
+    } catch (error) {
+      console.error('Error updating expense:', error);
     }
   };
   
@@ -243,7 +286,7 @@ const BudgetTracker: React.FC = () => {
   // Calculated values
   const categoryData = calculateSpentPerCategory(categories, expenses);
   const visibleCategoryData = categoryData.filter(category => category.visible);
-  const totals = calculateTotals(visibleCategoryData);
+  const totals = calculateTotals(totalBudget, visibleCategoryData);
   
   // Return JSX structure
   return (
@@ -263,54 +306,20 @@ const BudgetTracker: React.FC = () => {
           {/* App content when setup modal is closed */}
           {!showSetupModal && (
             <div className="w-full max-w-7xl mx-auto" data-id="app-width-container">
-              {/* Header */}
-              <header className="bg-regal-blue dark:bg-regal-blue text-white py-5 shadow-lg sticky top-0 z-10 mb-6 transition-colors duration-200 w-full rounded-lg" data-id="main-header">
-                <div className="flex justify-between items-center px-6" data-id="header-content">
-                  <h1 className="text-2xl font-bold" data-id="app-title">Budsjett</h1>
-                  <div className="flex items-center space-x-4" data-id="header-controls">
-                    <div className="text-sm bg-orient dark:bg-orient/80 px-4 py-2 rounded hidden md:block transition-colors duration-200 shadow-sm" data-id="budget-summary">
-                      Totalbudsjett: {formatCurrency(totalBudget)} | 
-                      Brukt: {formatCurrency(totals.spent)} | 
-                      Rest: {formatCurrency(totals.remaining)}
-                    </div>
-                    <div className="flex space-x-3" data-id="nav-buttons">
-                      <button 
-                        onClick={() => setActiveView('dashboard')} 
-                        className={`p-2 rounded ${activeView === 'dashboard' ? 'bg-orient dark:bg-orient/80' : 'hover:bg-orient dark:hover:bg-orient/80'}`}
-                        aria-label="View dashboard"
-                        title="View dashboard"
-                      >
-                        <BarChart2 size={20} />
-                      </button>
-                      <button 
-                        onClick={() => setActiveView('categories')} 
-                        className={`p-2 rounded ${activeView === 'categories' ? 'bg-orient dark:bg-orient/80' : 'hover:bg-orient dark:hover:bg-orient/80'}`}
-                        aria-label="View categories"
-                        title="View categories"
-                      >
-                        Kategorier
-                      </button>
-                      <button 
-                        onClick={() => setActiveView('expenses')} 
-                        className={`p-2 rounded ${activeView === 'expenses' ? 'bg-orient dark:bg-orient/80' : 'hover:bg-orient dark:hover:bg-orient/80'} transition-colors duration-200`}
-                      >
-                        Utgifter
-                      </button>
-                      <button 
-                        onClick={() => setActiveView('forecast')} 
-                        className={`p-2 rounded ${activeView === 'forecast' ? 'bg-orient dark:bg-orient/80' : 'hover:bg-orient dark:hover:bg-orient/80'} transition-colors duration-200`}
-                      >
-                        Prognose
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </header>
+              {/* Consolidated Budget Header */}
+              {selectedBudget && (
+                <BudgetHeader 
+                  budgetName={selectedBudget.name}
+                  totalBudget={totalBudget}
+                  totals={totals}
+                />
+              )}
 
-              {/* Main Content */}
+              {/* Main Content with Tabs */}
               <main className="flex-grow bg-background-light dark:bg-background-dark transition-colors duration-200 w-full space-y-6" data-id="main-content">
-                  {/* Dashboard View */}
-                  {activeView === 'dashboard' && (
+                <TabsContainer activeTab={activeTab} onTabChange={setActiveTab}>
+                  {/* Overview Tab */}
+                  {activeTab === 'overview' && (
                     <DashboardView 
                       totalBudget={totalBudget}
                       setTotalBudget={setTotalBudget}
@@ -323,8 +332,8 @@ const BudgetTracker: React.FC = () => {
                     />
                   )}
 
-                  {/* Categories View */}
-                  {activeView === 'categories' && (
+                  {/* Categories Tab */}
+                  {activeTab === 'categories' && (
                     <CategoriesView 
                       categories={categoryData}
                       totalBudget={totalBudget}
@@ -335,24 +344,26 @@ const BudgetTracker: React.FC = () => {
                     />
                   )}
 
-                  {/* Expenses View */}
-                  {activeView === 'expenses' && (
+                  {/* Expenses Tab */}
+                  {activeTab === 'expenses' && (
                     <ExpensesView 
                       categories={categories}
                       expenses={expenses}
                       onAddExpense={handleAddExpense}
                       onDeleteExpense={handleDeleteExpense}
+                      onUpdateExpense={handleUpdateExpense}
                     />
                   )}
 
-                  {/* Forecast View */}
-                  {activeView === 'forecast' && (
+                  {/* Forecast Tab */}
+                  {activeTab === 'forecast' && (
                     <ForecastView 
                       categories={categories}
                       forecast={forecast}
                       totalBudget={totalBudget}
                     />
                   )}
+                </TabsContainer>
               </main>
 
               {/* Footer */}
