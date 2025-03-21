@@ -1,0 +1,72 @@
+/* Standardized spacing system for consistent element spacing */
+
+:root {
+  /* Base spacing unit (4px) */
+  --space-unit: 0.25rem;
+  
+  /* Spacing scale */
+  --space-xs: calc(var(--space-unit) * 1);    /* 4px */
+  --space-sm: calc(var(--space-unit) * 2);    /* 8px */
+  --space-md: calc(var(--space-unit) * 4);    /* 16px */
+  --space-lg: calc(var(--space-unit) * 6);    /* 24px */
+  --space-xl: calc(var(--space-unit) * 8);    /* 32px */
+  --space-xxl: calc(var(--space-unit) * 12);  /* 48px */
+  
+  /* Specific chart spacing */
+  --chart-padding-top: var(--space-md);       /* 16px */
+  --chart-padding-right: var(--space-lg);     /* 24px */
+  --chart-padding-bottom: var(--space-xl);    /* 32px - extra space for labels */
+  --chart-padding-left: var(--space-lg);      /* 24px */
+  
+  /* Container spacing */
+  --container-padding: var(--space-md);       /* 16px */
+  --container-margin-bottom: var(--space-lg); /* 24px */
+  
+  /* Card spacing */
+  --card-padding: var(--space-lg);            /* 24px */
+  --card-inner-padding: var(--space-md);      /* 16px */
+}
+
+/* Utility classes */
+.p-space-md {
+  padding: var(--space-md);
+}
+
+.p-space-lg {
+  padding: var(--space-lg);
+}
+
+.mb-space-md {
+  margin-bottom: var(--space-md);
+}
+
+.mb-space-lg {
+  margin-bottom: var(--space-lg);
+}
+
+/* Chart container with proper spacing for labels */
+.chart-container {
+  padding: var(--chart-padding-top) var(--chart-padding-right) var(--chart-padding-bottom) var(--chart-padding-left);
+  position: relative;
+}
+
+/* Special handling for Recharts */
+.recharts-wrapper {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* Fix for x-axis labels */
+.recharts-xAxis .recharts-cartesian-axis-tick-value {
+  transform: translateY(3px);
+}
+
+/* Ensure charts render properly */
+.recharts-responsive-container {
+  min-height: 200px;
+}

@@ -38,8 +38,12 @@ export type Expense = {
   id: string;
   category_id: string;
   description: string;
-  amount: number;
+  amount: number; // The actual amount spent
+  budgeted_amount: number; // The planned/budgeted amount
   date: string;
   recurring: 'one-time' | 'monthly';
   budget_id: string;
+  // True if the expense has happened and the actual amount is known
+  // False if this is a planned expense and only the budgeted amount is known
+  is_actual: boolean; 
 };

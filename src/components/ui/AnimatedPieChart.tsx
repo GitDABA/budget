@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Sector } from 'recharts';
 import { AnimatedContainer } from './AnimatedContainer';
+import { useTheme } from '@/contexts/ThemeContext';
 
 // Types
 type DataItem = {
@@ -48,7 +49,22 @@ const DEFAULT_COLORS = [
 
 const COLORS = DEFAULT_COLORS;
 
-const renderActiveShape = (props: any) => {
+const renderActiveShape = (props: {
+  cx: number;
+  cy: number;
+  midAngle: number;
+  innerRadius: number;
+  outerRadius: number;
+  startAngle: number;
+  endAngle: number;
+  fill: string;
+  payload: DataItem;
+  value: number;
+  percent?: number;
+  valuePrefix?: string;
+  valueSuffix?: string;
+  valueFormatter?: (value: number) => string;
+}) => {
   const { 
     cx, cy, innerRadius, outerRadius, startAngle, endAngle,
     fill, payload, percent, value, valuePrefix, valueSuffix, valueFormatter
@@ -98,11 +114,12 @@ export function AnimatedPieChart({
   const [animatedData, setAnimatedData] = useState<DataItem[]>([]);
   const totalValue = data.reduce((acc, item) => acc + item.value, 0);
   const chartRef = useRef<HTMLDivElement>(null);
+  const { theme } = useTheme();
 
   // Calculate percentages for each item
   const dataWithPercentages = data.map(item => ({
     ...item,
-    percent: (item.value / totalValue) * 100
+    percent: totalValue > 0 ? (item.value / totalValue) * 100 : 0
   }));
 
   // Animate in the data
@@ -131,13 +148,13 @@ export function AnimatedPieChart({
       return (
         <div className="bg-white dark:bg-gray-800 p-3 shadow-lg rounded-lg border border-gray-100 dark:border-gray-700">
           <p className="font-medium">{data.name}</p>
-          <p className="text-sm text-gray-600 dark:text-gray-300">
+          <p className="text-sm text-gray-600 dark:text-white">
             {valueFormatter 
               ? valueFormatter(data.value) 
               : `${valuePrefix}${data.value.toLocaleString()}${valueSuffix}`}
           </p>
-          <p className="text-xs text-gray-500 dark:text-gray-400">
-            {data.percent.toFixed(1)}% of total
+          <p className="text-xs text-gray-500 dark:text-white">
+            {(data.percent || 0).toFixed(1)}% of total
           </p>
         </div>
       );
@@ -149,7 +166,7 @@ export function AnimatedPieChart({
   if (!data.length || totalValue === 0) {
     return (
       <div className={`flex flex-col items-center justify-center h-${height} ${className}`}>
-        <p className="text-gray-500 dark:text-gray-400">{emptyMessage}</p>
+        <p className="text-gray-500 dark:text-white">{emptyMessage}</p>
       </div>
     );
   }
@@ -166,7 +183,12 @@ export function AnimatedPieChart({
           {title}
         </motion.h3>
       )}
-      <div className="relative" style={{ height: height }} ref={chartRef}>
+      <div className="relative" style={{ 
+        height: height,
+        backgroundColor: theme === 'dark' ? '#2A2A2A' : '#f3f4f6',
+        borderRadius: '0.5rem',
+        padding: '0.5rem'
+      }} ref={chartRef}>
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
             <Pie
@@ -179,7 +201,7 @@ export function AnimatedPieChart({
               stroke="none"
               dataKey="value"
               activeIndex={activeIndex !== null ? activeIndex : undefined}
-              activeShape={(props) => renderActiveShape({
+              activeShape={(props: any) => renderActiveShape({
                 ...props, 
                 valuePrefix, 
                 valueSuffix,
@@ -229,7 +251,7 @@ export function AnimatedPieChart({
                 <span className="font-medium truncate max-w-40" title={entry.name}>
                   {entry.name}
                 </span>
-                <span className="text-xs text-gray-500 dark:text-gray-400">
+                <span className="text-xs text-gray-500 dark:text-white">
                   {valueFormatter 
                     ? valueFormatter(entry.value) 
                     : `${valuePrefix}${entry.value.toLocaleString()}${valueSuffix}`} 

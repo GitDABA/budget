@@ -13,12 +13,15 @@ interface BudgetContextType {
   selectBudget: (budgetId: string) => Promise<void>;
   deleteBudget: (budgetId: string) => Promise<boolean>;
   deleteCategory: (categoryId: string) => Promise<boolean>;
+  deleteExpense: (expenseId: string) => Promise<boolean>;
   fetchBudgetDetails: (budgetId: string) => Promise<{
     categories: Category[];
     expenses: Expense[];
   } | null>;
   createCategory: (category: Omit<Category, 'id'>) => Promise<Category | null>;
+  updateCategory: (category: Partial<Category> & { id: string }) => Promise<Category | null>;
   createExpense: (expense: Omit<Expense, 'id'>) => Promise<Expense | null>;
+  updateExpense: (expense: Partial<Expense> & { id: string }) => Promise<Expense | null>;
   updateBudget: (budget: Partial<Budget> & { id: string }) => Promise<Budget | null>;
   testSupabase: () => Promise<boolean>;
 }
@@ -177,6 +180,33 @@ export const BudgetProvider = ({ children }: { children: React.ReactNode }) => {
       return data as Category;
     } catch (error: any) {
       console.error('Error creating category:', error.message);
+      setError(error.message);
+      return null;
+    }
+  };
+
+  // Update an existing category
+  const updateCategory = async (category: Partial<Category> & { id: string }): Promise<Category | null> => {
+    try {
+      const { data, error } = await supabase
+        .from('categories')
+        .update(category) // Remove updated_at since the column doesn't exist
+        .eq('id', category.id)
+        .select()
+        .single();
+
+      if (error) {
+        throw error;
+      }
+
+      const updatedCategory = data as Category;
+      
+      // We don't need to update local state here as it's handled in the component
+      // that calls this function
+      
+      return updatedCategory;
+    } catch (error: any) {
+      console.error('Error updating category:', error.message);
       setError(error.message);
       return null;
     }
@@ -354,6 +384,65 @@ export const BudgetProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
+  // Delete an expense
+  const deleteExpense = async (expenseId: string): Promise<boolean> => {
+    console.log('Attempting to delete expense with ID:', expenseId);
+    setError(null);
+    
+    if (!expenseId) {
+      setError('Invalid expense ID provided');
+      return false;
+    }
+    
+    try {
+      // Delete the expense
+      const result = await deleteItem('expenses', expenseId);
+      
+      if (!result.success) {
+        setError(result.message || 'Failed to delete expense');
+        return false;
+      }
+      
+      // Update the UI by refetching budget details if a budget is selected
+      if (selectedBudget) {
+        await fetchBudgetDetails(selectedBudget.id);
+      }
+      
+      return true;
+    } catch (error: any) {
+      console.error('Error in deleteExpense:', error);
+      setError(error.message || 'An unexpected error occurred');
+      return false;
+    }
+  };
+
+  // Update an expense
+  const updateExpense = async (expense: Partial<Expense> & { id: string }): Promise<Expense | null> => {
+    try {
+      const { data, error } = await supabase
+        .from('expenses')
+        .update(expense)
+        .eq('id', expense.id)
+        .select()
+        .single();
+
+      if (error) {
+        throw error;
+      }
+
+      const updatedExpense = data as Expense;
+      
+      // We don't need to update local state here as it's handled in the component
+      // that calls this function
+      
+      return updatedExpense;
+    } catch (error: any) {
+      console.error('Error updating expense:', error.message);
+      setError(error.message);
+      return null;
+    }
+  };
+
   return (
     <BudgetContext.Provider
       value={{
@@ -365,9 +454,12 @@ export const BudgetProvider = ({ children }: { children: React.ReactNode }) => {
         selectBudget,
         deleteBudget,
         deleteCategory,
+        deleteExpense,
         fetchBudgetDetails,
         createCategory,
+        updateCategory,
         createExpense,
+        updateExpense,
         updateBudget,
         testSupabase
       }}

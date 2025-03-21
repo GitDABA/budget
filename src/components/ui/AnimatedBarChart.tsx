@@ -7,6 +7,7 @@ import {
   ResponsiveContainer, Legend, Cell 
 } from 'recharts';
 import { AnimatedContainer } from './AnimatedContainer';
+import { useTheme } from '@/contexts/ThemeContext';
 
 // Types
 type DataItem = {
@@ -72,6 +73,7 @@ export function AnimatedBarChart({
 }: AnimatedBarChartProps) {
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const [animatedData, setAnimatedData] = useState<DataItem[]>([]);
+  const { theme } = useTheme();
 
   // Format data for Recharts based on provided dataKey
   const formattedData = data.map(item => ({
@@ -87,7 +89,7 @@ export function AnimatedBarChart({
     // Create a delay for each data item to animate in sequence
     formattedData.forEach((item, index) => {
       setTimeout(() => {
-        setAnimatedData(prev => [...prev, item]);
+        setAnimatedData(prev => [...prev, item as DataItem]);
       }, 70 * index);
     });
   }, [formattedData]);
@@ -106,7 +108,7 @@ export function AnimatedBarChart({
       return (
         <div className="bg-white dark:bg-gray-800 p-3 shadow-lg rounded-lg border border-gray-100 dark:border-gray-700">
           <p className="font-medium">{label}</p>
-          <p className="text-sm text-gray-600 dark:text-gray-300">
+          <p className="text-sm text-gray-600 dark:text-white">
             {valueFormatter 
               ? valueFormatter(value) 
               : `${valuePrefix}${value.toLocaleString()}${valueSuffix}`}
@@ -121,7 +123,7 @@ export function AnimatedBarChart({
   if (!data.length || data.every(item => item.value === 0)) {
     return (
       <div className={`flex flex-col items-center justify-center h-${height} ${className}`}>
-        <p className="text-gray-500 dark:text-gray-400">{emptyMessage}</p>
+        <p className="text-gray-500 dark:text-white">{emptyMessage}</p>
       </div>
     );
   }
@@ -138,7 +140,12 @@ export function AnimatedBarChart({
           {title}
         </motion.h3>
       )}
-      <div className="relative" style={{ height: height }}>
+      <div className="relative" style={{ 
+        height: height,
+        backgroundColor: theme === 'dark' ? '#2A2A2A' : '#f3f4f6',
+        borderRadius: '0.5rem',
+        padding: '0.5rem' 
+      }}>
         <ResponsiveContainer width="100%" height="100%">
           <BarChart
             data={animatedData}
@@ -155,9 +162,9 @@ export function AnimatedBarChart({
             <XAxis 
               dataKey={layout === 'vertical' ? 'name' : undefined}
               type={layout === 'vertical' ? 'category' : 'number'}
-              axisLine={{ stroke: '#e2e8f0', strokeWidth: 1 }} 
+              axisLine={{ stroke: theme === 'dark' ? '#4b5563' : '#e2e8f0', strokeWidth: 1 }} 
               tickLine={false}
-              tick={{ fontSize: 12, fill: '#94a3b8' }}
+              tick={{ fontSize: 12, fill: '#ffffff' }}
               tickMargin={8}
               angle={layout === 'vertical' ? -45 : 0}
               textAnchor={layout === 'vertical' ? 'end' : 'middle'}
@@ -166,9 +173,9 @@ export function AnimatedBarChart({
             <YAxis 
               type={layout === 'vertical' ? 'number' : 'category'}
               dataKey={layout === 'horizontal' ? 'name' : undefined}
-              axisLine={{ stroke: '#e2e8f0', strokeWidth: 1 }}
+              axisLine={{ stroke: theme === 'dark' ? '#4b5563' : '#e2e8f0', strokeWidth: 1 }}
               tickLine={false}
-              tick={{ fontSize: 12, fill: '#94a3b8' }}
+              tick={{ fontSize: 12, fill: '#ffffff' }}
               tickFormatter={
                 layout === 'vertical' 
                   ? (value) => valueFormatter 
@@ -180,7 +187,7 @@ export function AnimatedBarChart({
             />
             <Tooltip 
               content={<CustomTooltip />} 
-              cursor={{ fill: 'rgba(224, 231, 255, 0.2)' }} 
+              cursor={{ fill: theme === 'dark' ? 'rgba(50, 50, 50, 0.7)' : 'rgba(224, 231, 255, 0.2)' }} 
             />
             {showLegend && <Legend />}
             <Bar

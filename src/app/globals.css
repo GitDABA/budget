@@ -8,6 +8,18 @@
   color: white !important;
 }
 
+/* Category color buttons - using data-color attribute instead of inline styles */
+.category-color-button[data-color="#0088FE"] { background-color: #0088FE; }
+.category-color-button[data-color="#00C49F"] { background-color: #00C49F; }
+.category-color-button[data-color="#FFBB28"] { background-color: #FFBB28; }
+.category-color-button[data-color="#FF8042"] { background-color: #FF8042; }
+.category-color-button[data-color="#A28BFF"] { background-color: #A28BFF; }
+.category-color-button[data-color="#FF6B6B"] { background-color: #FF6B6B; }
+.category-color-button[data-color="#4ECDC4"] { background-color: #4ECDC4; }
+.category-color-button[data-color="#52BF90"] { background-color: #52BF90; }
+.category-color-button[data-color="#2C786C"] { background-color: #2C786C; }
+.category-color-button[data-color="#F8333C"] { background-color: #F8333C; }
+
 @layer base {
   :root {
     --background: 0 0% 100%;

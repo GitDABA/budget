@@ -18,7 +18,7 @@ export default function AppContents({ BudgetTrackerComponent }: AppContentsProps
       
       {/* Only render the BudgetTracker when a budget is selected */}
       {selectedBudget && budgets.length > 0 && (
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
+        <div className="mt-4">
           <BudgetTrackerComponent />
         </div>
       )}

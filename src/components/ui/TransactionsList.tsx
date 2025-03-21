@@ -111,7 +111,7 @@ export function TransactionsList({
           {/* Header */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-5 gap-4">
             <motion.h3 
-              className="text-lg font-bold text-gray-800 dark:text-gray-100"
+              className="text-lg font-bold text-gray-800 dark:text-white"
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3 }}
@@ -225,7 +225,7 @@ export function TransactionsList({
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.3 }}
                 >
-                  <p className="text-gray-500 dark:text-gray-400">{emptyMessage}</p>
+                  <p className="text-gray-500 dark:text-white">{emptyMessage}</p>
                 </motion.div>
               ) : (
                 // Transactions
@@ -259,8 +259,8 @@ export function TransactionsList({
                           )}
                         </div>
                         <div>
-                          <p className="font-medium text-gray-800 dark:text-gray-200">{transaction.description}</p>
-                          <div className="flex items-center text-xs text-gray-500 dark:text-gray-400 mt-0.5 gap-3">
+                          <p className="font-medium text-gray-800 dark:text-white">{transaction.description}</p>
+                          <div className="flex items-center text-xs text-gray-500 dark:text-white mt-0.5 gap-3">
                             <span className="flex items-center">
                               <Tag size={12} className="mr-1" />
                               <span

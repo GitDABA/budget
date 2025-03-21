@@ -163,9 +163,9 @@ export default function BudgetSelector() {
   /* Remove the debugging effect hook that's in the wrong location */
 
   return (
-    <div className="mb-6 p-4 bg-card-light dark:bg-card-dark rounded-lg shadow-card-light dark:shadow-card-dark relative overflow-hidden transition-colors duration-200">
+    <div className="mb-6 p-4 bg-card-light dark:bg-card-dark rounded-lg shadow-md border border-gray-200 dark:border-gray-800 dark:shadow-card-dark relative overflow-hidden transition-colors duration-200">
       <div className="absolute inset-0 dot-pattern opacity-5"></div>
-      <AnimatedContainer className="relative" variant="fadeIn" duration={0.4}>
+      <AnimatedContainer className="relative z-10" variant="fadeIn" duration={0.4}>
         <div className="flex justify-between items-center mb-6">
           <div className="flex items-center gap-3">
             <motion.h2 
@@ -176,23 +176,6 @@ export default function BudgetSelector() {
             >
               My Budgets
             </motion.h2>
-            <button 
-              onClick={async () => {
-                console.log('Testing Supabase connection...');
-                try {
-                  const testResult = await testSupabase();
-                  console.log('Test result:', testResult);
-                  alert(testResult ? 'Database connection successful!' : 'Database connection failed');
-                } catch (error) {
-                  console.error('Test error:', error);
-                  alert('Test error: ' + (error instanceof Error ? error.message : 'Unknown error'));
-                }
-              }}
-              className="text-xs bg-primary-100 hover:bg-primary-200 text-primary-800 px-2 py-1 rounded transition-colors"
-              title="Test database connection"
-            >
-              Test DB
-            </button>
           </div>
           <div className="flex items-center gap-3">
             <ThemeToggle />
@@ -209,7 +192,7 @@ export default function BudgetSelector() {
         </div>
       </AnimatedContainer>
 
-      <AnimatedContainer className="relative" delay={0.1}>
+      <AnimatedContainer className="relative z-10" delay={0.1}>
         {budgets.length === 0 ? (
           <motion.div 
             className="text-center py-8 px-4 border border-dashed border-gray-300 dark:border-gray-700 rounded-xl"

@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 
-type TabId = 'overview' | 'categories' | 'expenses' | 'forecast';
+type TabId = 'overview' | 'manage' | 'forecast';
 
 interface Tab {
   id: TabId;
@@ -16,14 +16,13 @@ interface TabsContainerProps {
 
 const tabs: Tab[] = [
   { id: 'overview', label: 'Oversikt' },
-  { id: 'categories', label: 'Kategorier' },
-  { id: 'expenses', label: 'Utgifter' },
+  { id: 'manage', label: 'Administrer' },
   { id: 'forecast', label: 'Prognose' }
 ];
 
 const TabsContainer: React.FC<TabsContainerProps> = ({ activeTab, onTabChange, children }) => {
   return (
-    <div className="bg-card-light dark:bg-card-dark rounded-lg shadow-md overflow-hidden">
+    <div className="bg-card-light dark:bg-card-dark rounded-lg shadow-md border border-gray-200 dark:border-gray-800 dark:shadow-card-dark relative overflow-hidden transition-colors duration-200">
       <div className="flex border-b border-border-light dark:border-border-dark">
         {tabs.map((tab) => (
           <button

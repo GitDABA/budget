@@ -14,6 +14,9 @@ import ForecastView from './ForecastView';
 import SetupModal from './SetupModal';
 import TabsContainer from './TabsContainer';
 import BudgetHeader from './BudgetHeader';
+import AddCategoryModal from './AddCategoryModal';
+import AddExpenseModal from './AddExpenseModal';
+import FloatingActionButtons from './FloatingActionButtons';
 
 // Define months for use in the app (in Norwegian)
 const months = ['Januar', 'Februar', 'Mars', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Desember'];
@@ -31,6 +34,27 @@ const BudgetTracker: React.FC = () => {
   
   // Control modal visibility explicitly
   const [showSetupModal, setShowSetupModal] = useState(false);
+  const [showAddCategoryModal, setShowAddCategoryModal] = useState(false);
+  const [showAddExpenseModal, setShowAddExpenseModal] = useState(false);
+  
+  // Detect if we're on mobile using window width
+  const [isMobile, setIsMobile] = useState(false);
+  
+  // Check screen size on component mount and window resize
+  useEffect(() => {
+    const checkIfMobile = () => {
+      setIsMobile(window.innerWidth < 768); // 768px is typical md breakpoint
+    };
+    
+    // Check on mount
+    checkIfMobile();
+    
+    // Set up resize listener
+    window.addEventListener('resize', checkIfMobile);
+    
+    // Clean up
+    return () => window.removeEventListener('resize', checkIfMobile);
+  }, []);
   
   // State management
   const [totalBudget, setTotalBudget] = useState(0);
@@ -38,7 +62,7 @@ const BudgetTracker: React.FC = () => {
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [forecast, setForecast] = useState<ForecastData[]>([]);
-  const [activeTab, setActiveTab] = useState<'overview' | 'categories' | 'expenses' | 'forecast'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'manage' | 'forecast'>('overview');
   
   // Load budget data when selectedBudget changes
   useEffect(() => {
@@ -312,6 +336,15 @@ const BudgetTracker: React.FC = () => {
                   budgetName={selectedBudget.name}
                   totalBudget={totalBudget}
                   totals={totals}
+                  budget={{
+                    ...selectedBudget,
+                    totalBudget: totalBudget,
+                    categories: categories,
+                    expenses: expenses,
+                    forecast: forecast
+                  }}
+                  onAddCategory={() => setShowAddCategoryModal(true)}
+                  onAddExpense={() => setShowAddExpenseModal(true)}
                 />
               )}
 
@@ -332,27 +365,34 @@ const BudgetTracker: React.FC = () => {
                     />
                   )}
 
-                  {/* Categories Tab */}
-                  {activeTab === 'categories' && (
-                    <CategoriesView 
-                      categories={categoryData}
-                      totalBudget={totalBudget}
-                      totals={totals}
-                      onAddCategory={handleAddCategory}
-                      onDeleteCategory={handleDeleteCategory}
-                      onUpdateCategory={handleUpdateCategory}
-                    />
-                  )}
+                  {/* Administrer Tab - Combined Categories and Expenses */}
+                  {activeTab === 'manage' && (
+                    <div className="space-y-8">
+                      {/* Categories Section */}
+                      <div className="bg-card-light dark:bg-card-dark rounded-lg shadow-card-light dark:shadow-card-dark p-space-lg transition-colors duration-200 w-full">
 
-                  {/* Expenses Tab */}
-                  {activeTab === 'expenses' && (
-                    <ExpensesView 
-                      categories={categories}
-                      expenses={expenses}
-                      onAddExpense={handleAddExpense}
-                      onDeleteExpense={handleDeleteExpense}
-                      onUpdateExpense={handleUpdateExpense}
-                    />
+                        <CategoriesView 
+                          categories={categoryData}
+                          totalBudget={totalBudget}
+                          totals={totals}
+                          onAddCategory={handleAddCategory}
+                          onDeleteCategory={handleDeleteCategory}
+                          onUpdateCategory={handleUpdateCategory}
+                        />
+                      </div>
+                      
+                      {/* Expenses Section */}
+                      <div className="bg-card-light dark:bg-card-dark rounded-lg shadow-card-light dark:shadow-card-dark p-space-lg transition-colors duration-200 w-full">
+
+                        <ExpensesView 
+                          categories={categories}
+                          expenses={expenses}
+                          onAddExpense={handleAddExpense}
+                          onDeleteExpense={handleDeleteExpense}
+                          onUpdateExpense={handleUpdateExpense}
+                        />
+                      </div>
+                    </div>
                   )}
 
                   {/* Forecast Tab */}
@@ -382,6 +422,29 @@ const BudgetTracker: React.FC = () => {
           )}
         </div>
       )}
+      
+      {/* Floating Action Buttons */}
+      <FloatingActionButtons
+        onAddCategory={() => setShowAddCategoryModal(true)}
+        onAddExpense={() => setShowAddExpenseModal(true)}
+      />
+      
+      {/* Add Category Modal */}
+      <AddCategoryModal 
+        isOpen={showAddCategoryModal}
+        onClose={() => setShowAddCategoryModal(false)}
+        onAddCategory={handleAddCategory}
+        isMobile={isMobile}
+      />
+      
+      {/* Add Expense Modal */}
+      <AddExpenseModal 
+        isOpen={showAddExpenseModal}
+        onClose={() => setShowAddExpenseModal(false)}
+        onAddExpense={handleAddExpense}
+        categories={categoryData}
+        isMobile={isMobile}
+      />
     </div>
   );
 };

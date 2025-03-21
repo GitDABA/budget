@@ -15,6 +15,17 @@ export const formatCurrency = (amount: number): string => {
   }).format(amount);
 };
 
+// Format currency with dynamic abbreviation based on available space
+export const formatCurrencyCompact = (amount: number, useSuffix: boolean = true): string => {
+  if (Math.abs(amount) >= 1000000) {
+    return `${Math.round(amount / 100000) / 10}${useSuffix ? ' mill' : ''}`;
+  } else if (Math.abs(amount) >= 10000) {
+    return `${Math.round(amount / 1000)}${useSuffix ? ' k' : ''}`;
+  } else {
+    return `${amount}${useSuffix ? '' : ''}`;
+  }
+};
+
 // Calculate total budget allocated to categories
 export const calculateTotalAllocated = (categories: CategoryWithSpent[]): number => {
   return categories.reduce((sum, category) => {
@@ -62,17 +73,26 @@ export const calculateSpentPerCategory = (categories: CategoryWithSpent[], expen
 };
 
 // Calculate budget totals
-export const calculateTotals = (categories: CategoryWithSpent[]): BudgetTotals => {
+export const calculateTotals = (totalBudget: number, categories: CategoryWithSpent[]): BudgetTotals => {
+  // Calculate total spent across all categories
   const totalSpent = categories.reduce((sum, category) => sum + (category.spent || 0), 0);
-  const totalBudget = categories.reduce((sum, category) => {
+  
+  // Calculate total allocated to categories
+  const totalAllocated = categories.reduce((sum, category) => {
     const budget = typeof category.budget === 'string' ? parseFloat(category.budget) : category.budget;
     return sum + budget;
   }, 0);
+  
+  // Calculate remaining from the TOTAL budget (not just allocated)
   const remaining = totalBudget - totalSpent;
+  
+  // Calculate percentage based on total budget
   const percentUsed = totalBudget > 0 ? ((totalSpent / totalBudget) * 100).toFixed(1) : '0.0';
   
   return {
     spent: totalSpent,
+    allocated: totalAllocated,
+    unallocated: totalBudget - totalAllocated,
     remaining: remaining,
     percentUsed: percentUsed
   };
