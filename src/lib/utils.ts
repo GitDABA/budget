@@ -86,11 +86,21 @@ export function formatDate(dateString: string, format: 'short' | 'medium' | 'lon
     if (diffInDays < 7) return `${diffInDays}d ago`;
   }
   
-  const options: Intl.DateTimeFormatOptions = {
-    short: { day: 'numeric', month: 'short' },
-    medium: { day: 'numeric', month: 'short', year: 'numeric' },
-    long: { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' }
-  }[format];
+  let options: Intl.DateTimeFormatOptions;
+  
+  switch (format) {
+    case 'short':
+      options = { day: 'numeric', month: 'short' };
+      break;
+    case 'medium':
+      options = { day: 'numeric', month: 'short', year: 'numeric' };
+      break;
+    case 'long':
+      options = { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' };
+      break;
+    default:
+      options = { day: 'numeric', month: 'short' };
+  }
   
   return new Intl.DateTimeFormat('en-GB', options).format(date);
 }

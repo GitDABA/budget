@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Download } from 'lucide-react';
-import { exportBudgetToExcel } from '@/utils/excelExport';
+import { exportBudgetToExcel, ExtendedBudget } from '@/utils/excelExport';
 import { Budget, Category, Transaction, ForecastData } from '@/types';
+import { Budget as SupabaseBudget } from '@/lib/supabase';
 import { motion } from 'framer-motion';
 import { supabase } from '@/utils/supabaseClient';
 
@@ -41,8 +42,23 @@ const ExcelExportButton: React.FC<ExcelExportButtonProps> = ({ budget }) => {
       // Generate forecast data based on transactions and categories
       const forecastData = generateForecastData(budget, categories, transactions);
       
+      // Create ExtendedBudget object compatible with the export function
+      const extendedBudget: ExtendedBudget = {
+        id: budget.id,
+        name: budget.name,
+        description: budget.description,
+        // Map properties correctly between different Budget types
+        totalBudget: budget.totalBudget,
+        total_amount: budget.totalBudget,
+        created_at: budget.createdAt || new Date().toISOString(),
+        updated_at: budget.updatedAt || new Date().toISOString(),
+        user_id: budget.userId || '',
+        startDate: budget.startDate,
+        endDate: budget.endDate
+      };
+      
       // Export to Excel
-      await exportBudgetToExcel(budget, categories, transactions, forecastData);
+      await exportBudgetToExcel(extendedBudget, categories, transactions, forecastData);
       
     } catch (error) {
       console.error('Failed to export budget:', error);
@@ -92,7 +108,7 @@ const ExcelExportButton: React.FC<ExcelExportButtonProps> = ({ budget }) => {
       if (monthIndex < 0 || monthIndex >= months.length) return;
       
       // Find category
-      const category = categories.find(c => c.id === transaction.categoryId);
+      const category = categories.find(c => c.id === transaction.category_id);
       
       if (category) {
         // Add to category spending

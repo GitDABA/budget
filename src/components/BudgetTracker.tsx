@@ -119,8 +119,10 @@ const BudgetTracker: React.FC = () => {
     category_id: '',
     description: '',
     amount: 0,
+    budgeted_amount: 0,
     date: new Date().toISOString().split('T')[0],
-    recurring: 'one-time' as 'one-time' | 'monthly'
+    recurring: 'one-time' as 'one-time' | 'monthly',
+    is_actual: true
   });
   
   const [isAddingCategory, setIsAddingCategory] = useState(false);
@@ -297,10 +299,12 @@ const BudgetTracker: React.FC = () => {
       const expenseToAdd = {
         description: newExpense.description,
         amount: newExpense.amount,
+        budgeted_amount: newExpense.amount, // Using the same value for actual and budgeted amount
         category_id: newExpense.category_id,
         date: newExpense.date,
         recurring: newExpense.recurring,
-        budget_id: selectedBudget.id
+        budget_id: selectedBudget.id,
+        is_actual: true // Marking this as an actual expense, not a planned one
       };
       
       // Use context function to create expense in database
@@ -311,8 +315,10 @@ const BudgetTracker: React.FC = () => {
           category_id: '',
           description: '',
           amount: 0,
+          budgeted_amount: 0,
           date: new Date().toISOString().split('T')[0],
-          recurring: 'one-time' as 'one-time' | 'monthly'
+          recurring: 'one-time' as 'one-time' | 'monthly',
+          is_actual: true
         });
         setIsAddingExpense(false);
       }
@@ -1480,55 +1486,55 @@ const BudgetTracker: React.FC = () => {
             </div>
           </div>
         )}
-              </main>
+      </main>
 
-              {/* Footer */}
-              <footer className="bg-gray-100 border-t mt-auto w-full">
-                <div className="container mx-auto px-4 py-4 text-sm text-gray-600 text-center">
-                  Budsjettplanlegger for Teamarrangementer — {currentYear}
-                  <button 
-                    onClick={() => setShowSetupModal(true)} 
-                    className="ml-4 text-blue-600 hover:text-blue-800 underline"
+      {/* Footer */}
+      <footer className="bg-gray-100 border-t mt-auto w-full">
+        <div className="container mx-auto px-4 py-4 text-sm text-gray-600 text-center">
+          Budsjettplanlegger for Teamarrangementer — {currentYear}
+          <button 
+            onClick={() => setShowSetupModal(true)} 
+            className="ml-4 text-blue-600 hover:text-blue-800 underline"
+          >
+            Endre totalbudsjett
+          </button>
+        </div>
+      </footer>
+          </>
+          )}
+          {/* Delete Category Confirmation Modal */}
+          {showDeleteModal && (
+            <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center">
+              <div 
+                className="bg-white dark:bg-gray-800 p-6 rounded-xl w-full max-w-md shadow-lg relative overflow-hidden"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="flex items-center mb-4 text-red-500">
+                  <AlertTriangle className="mr-2" size={24} />
+                  <h3 className="text-xl font-bold">Delete Category</h3>
+                </div>
+                <p className="text-gray-700 dark:text-white mb-6">
+                  Are you sure you want to delete this category? This action cannot be undone and will remove all expenses associated with this category.
+                </p>
+                <div className="flex justify-end gap-3 mt-6">
+                  <button
+                    type="button"
+                    onClick={() => setShowDeleteModal(false)}
+                    className="px-4 py-2 bg-gray-200 dark:bg-gray-600 rounded text-gray-800 dark:text-white hover:bg-gray-300 dark:hover:bg-gray-500 font-medium transition-colors duration-200"
                   >
-                    Endre totalbudsjett
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleConfirmDelete}
+                    className="px-4 py-2 bg-red-500 rounded text-white hover:bg-red-600 font-medium disabled:bg-red-300 disabled:cursor-not-allowed"
+                  >
+                    Delete Category
                   </button>
                 </div>
-              </footer>
-            </>
-        </div>
-      )}
-
-      {/* Delete Category Confirmation Modal */}
-      {showDeleteModal && (
-        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center">
-          <div 
-            className="bg-white dark:bg-gray-800 p-6 rounded-xl w-full max-w-md shadow-lg relative overflow-hidden"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-center mb-4 text-red-500">
-              <AlertTriangle className="mr-2" size={24} />
-              <h3 className="text-xl font-bold">Delete Category</h3>
+              </div>
             </div>
-            <p className="text-gray-700 dark:text-white mb-6">
-              Are you sure you want to delete this category? This action cannot be undone and will remove all expenses associated with this category.
-            </p>
-            <div className="flex justify-end gap-3 mt-6">
-              <button
-                type="button"
-                onClick={() => setShowDeleteModal(false)}
-                className="px-4 py-2 bg-gray-200 dark:bg-gray-600 rounded text-gray-800 dark:text-white hover:bg-gray-300 dark:hover:bg-gray-500 font-medium transition-colors duration-200"
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                onClick={handleConfirmDelete}
-                className="px-4 py-2 bg-red-500 rounded text-white hover:bg-red-600 font-medium disabled:bg-red-300 disabled:cursor-not-allowed"
-              >
-                Delete Category
-              </button>
-            </div>
-          </div>
+          )}
         </div>
       )}
     </div>
