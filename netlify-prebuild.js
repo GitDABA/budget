@@ -6,9 +6,9 @@ const path = require('path');
 const componentsToFix = [
   // List of specific components that are causing issues
   { src: 'Button.tsx', dest: 'button.tsx' },
-  { src: 'AnimatedContainer.tsx', dest: 'animatedContainer.tsx' },
-  { src: 'AnimatedPieChart.tsx', dest: 'animatedPieChart.tsx' },
-  { src: 'TransactionsList.tsx', dest: 'transactionsList.tsx' },
+  { src: 'AnimatedContainer.tsx', dest: 'animatedcontainer.tsx' },
+  { src: 'AnimatedPieChart.tsx', dest: 'animatedpiechart.tsx' },
+  { src: 'TransactionsList.tsx', dest: 'transactionslist.tsx' },
   { src: 'Skeleton.tsx', dest: 'skeleton.tsx' }
 ];
 
