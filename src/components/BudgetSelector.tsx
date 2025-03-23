@@ -5,7 +5,7 @@ import { useBudget } from '@/contexts/BudgetContext';
 import { Budget } from '@/lib/supabase';
 import { PlusCircle, Trash2, Edit, AlertTriangle, ArrowRight, CheckCircle2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { AnimatedContainer } from './ui/animatedContainer';
+import { AnimatedContainer } from './ui/animatedcontainer';
 import ThemeToggle from '@/components/ThemeToggle';
 
 export default function BudgetSelector() {
