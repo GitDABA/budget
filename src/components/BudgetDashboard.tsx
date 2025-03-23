@@ -2,9 +2,9 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { AnimatedContainer } from './ui/animatedcontainer';
-import { AnimatedPieChart } from './ui/animatedpiechart';
-import { TransactionsList, Transaction } from './ui/transactionslist';
+import AnimatedContainer from './ui/animatedcontainer';
+import AnimatedPieChart from './ui/animatedpiechart';
+import TransactionsList, { Transaction } from './ui/transactionslist';
 import { 
   ArrowUpRight, ArrowDownRight, TrendingUp, 
   DollarSign, PiggyBank, Calendar, RefreshCw, 
