@@ -200,7 +200,12 @@ const ForecastView: React.FC<ForecastViewProps> = ({
         <div className="mb-8">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-xl font-semibold text-text-light-primary dark:text-text-dark-primary transition-colors duration-200">Akkumulerte utgifter vs budsjett</h2>
-            <div className="text-sm bg-blue-100 dark:bg-blue-900/20 px-2 py-0.5 rounded text-blue-800 dark:text-blue-300 border border-blue-200 dark:border-blue-800/50">Prognose</div>
+            <div className="flex gap-2 items-center">
+              {enableAverageProjection && (
+                <div className="text-sm bg-blue-100 dark:bg-blue-900/20 px-2 py-0.5 rounded text-blue-800 dark:text-blue-300 border border-blue-200 dark:border-blue-800/50">Snittprognose aktivert</div>
+              )}
+              <div className="text-sm bg-blue-100 dark:bg-blue-900/20 px-2 py-0.5 rounded text-blue-800 dark:text-blue-300 border border-blue-200 dark:border-blue-800/50">Prognose</div>
+            </div>
           </div>
           
           {/* Key budget statistics */}
@@ -388,7 +393,12 @@ const ForecastView: React.FC<ForecastViewProps> = ({
       <div className="bg-card-light dark:bg-card-dark rounded-lg shadow-card-light dark:shadow-card-dark p-6 transition-colors duration-200 w-full">
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-xl font-semibold text-text-light-primary dark:text-text-dark-primary transition-colors duration-200">Månedlige utgifter per kategori</h3>
-          <div className="text-sm bg-blue-100 dark:bg-blue-900/20 px-2 py-0.5 rounded text-blue-800 dark:text-blue-300 border border-blue-200 dark:border-blue-800/50">Fordeling</div>
+          <div className="flex gap-2 items-center">
+            {enableAverageProjection && (
+              <div className="text-sm bg-blue-100 dark:bg-blue-900/20 px-2 py-0.5 rounded text-blue-800 dark:text-blue-300 border border-blue-200 dark:border-blue-800/50">Snittprognose aktivert</div>
+            )}
+            <div className="text-sm bg-blue-100 dark:bg-blue-900/20 px-2 py-0.5 rounded text-blue-800 dark:text-blue-300 border border-blue-200 dark:border-blue-800/50">Fordeling</div>
+          </div>
         </div>
         <div className="w-full dark:bg-[#2A2A2A] bg-white rounded-xl shadow-lg dark:shadow-slate-900/20 border border-gray-200 dark:border-slate-800 p-space-md transition-all duration-200">
           {/* Custom legend at top of chart */}
@@ -404,7 +414,7 @@ const ForecastView: React.FC<ForecastViewProps> = ({
           <div className="chart-wrapper">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart
-              data={forecast}
+              data={displayForecast}
               margin={{ top: 20, right: 30, left: 20, bottom: 40 }}
               className="dark:bg-transparent rounded-lg"
             >
@@ -482,7 +492,15 @@ const ForecastView: React.FC<ForecastViewProps> = ({
 
       {/* Monthly Forecast Table */}
       <div className="bg-card-light dark:bg-card-dark rounded-lg shadow-card-light dark:shadow-card-dark p-6 transition-colors duration-200 w-full">
-        <h3 className="text-xl font-semibold mb-4 text-text-light-primary dark:text-text-dark-primary transition-colors duration-200">Månedlig prognose</h3>
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-xl font-semibold text-text-light-primary dark:text-text-dark-primary transition-colors duration-200">Månedlig prognose</h3>
+          <div className="flex gap-2 items-center">
+            {enableAverageProjection && (
+              <div className="text-sm bg-blue-100 dark:bg-blue-900/20 px-2 py-0.5 rounded text-blue-800 dark:text-blue-300 border border-blue-200 dark:border-blue-800/50">Snittprognose aktivert</div>
+            )}
+            <div className="text-sm bg-blue-100 dark:bg-blue-900/20 px-2 py-0.5 rounded text-blue-800 dark:text-blue-300 border border-blue-200 dark:border-blue-800/50">Prognose</div>
+          </div>
+        </div>
         <div className="overflow-x-auto dark:bg-[#2A2A2A] bg-white rounded-xl shadow-lg dark:shadow-slate-900/20 border border-gray-200 dark:border-slate-800 transition-all duration-200 w-full">
           <table className="w-full divide-y divide-gray-200 dark:divide-gray-700 transition-colors duration-200">
             <thead>
