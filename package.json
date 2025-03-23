@@ -4,9 +4,11 @@
   "private": true,
   "scripts": {
     "dev": "next dev -p 3333",
+    "prebuild": "node netlify-prebuild.js",
     "build": "next build",
     "start": "next start -p 3333",
-    "lint": "next lint"
+    "lint": "next lint",
+    "netlify-build": "npm run prebuild && npm run build"
   },
   "dependencies": {
     "@headlessui/react": "^2.2.0",
