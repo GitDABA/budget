@@ -1,0 +1,9 @@
+.dashboardImageLight {
+  object-fit: contain;
+  background-color: #f8fafc;
+}
+
+.dashboardImageDark {
+  object-fit: contain;
+  background-color: #1e293b;
+}

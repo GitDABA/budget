@@ -6,6 +6,7 @@ import { useAuth } from '@/components/auth/AuthContext';
 import Navigation from '@/components/layout/Navigation';
 import { useState } from 'react';
 import AnimatedContainer from '@/components/ui/animatedcontainer';
+import styles from './styles.module.css';
 
 export default function LandingPage() {
   const { theme, toggleTheme } = useTheme();
@@ -67,16 +68,19 @@ export default function LandingPage() {
                 delay={0.3}
               >
                 <div className="relative bg-white dark:bg-gray-800 p-6 rounded-xl shadow-xl">
-                  <div className="aspect-w-16 aspect-h-9">
+                  <div className="aspect-w-16 aspect-h-9 overflow-hidden rounded-lg">
                     <img 
-                      src="/budget-app-demo.png" 
+                      src="/budget-dashboard.svg" 
                       alt="Budget App Dashboard" 
-                      className="rounded-lg object-cover"
+                      className={`rounded-lg w-full h-full object-cover ${theme === 'dark' ? styles.dashboardImageDark : styles.dashboardImageLight}`}
                       onError={(e) => {
                         const target = e.target as HTMLImageElement;
                         target.src = "https://via.placeholder.com/800x450?text=Budget+Tracker+Dashboard";
                       }}
                     />
+                  </div>
+                  <div className="absolute bottom-3 right-6 bg-blue-600 dark:bg-blue-500 text-white text-xs py-1 px-3 rounded-full">
+                    Dashboard Preview
                   </div>
                 </div>
               </AnimatedContainer>

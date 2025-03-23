@@ -15,7 +15,7 @@ export default function UserProfile() {
       <button
         onClick={() => setIsMenuOpen(!isMenuOpen)}
         className="flex items-center space-x-2 rounded-full p-1 hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        aria-expanded={isMenuOpen ? "true" : "false"}
+        aria-expanded="false"
       >
         <div className="h-8 w-8 rounded-full bg-blue-500 flex items-center justify-center text-white">
           {user.email?.[0].toUpperCase() || 'U'}
