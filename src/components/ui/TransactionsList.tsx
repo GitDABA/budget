@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowUp, ArrowDown, Tag, Calendar, Search, Filter, X, ChevronRight } from 'lucide-react';
-import { AnimatedContainer } from './animatedContainer';
+import { AnimatedContainer } from './animatedcontainer';
 
 // Types
 export type Transaction = {
