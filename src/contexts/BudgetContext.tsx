@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { supabase, Budget, Category, Expense } from '@/lib/supabase';
 import { deleteItem, testSupabaseConnection, testDeletePermission } from '@/lib/supabaseHelpers';
+import { useAuth } from '@/components/auth/AuthContext';
 
 interface BudgetContextType {
   budgets: Budget[];
@@ -29,18 +30,26 @@ interface BudgetContextType {
 const BudgetContext = createContext<BudgetContextType | undefined>(undefined);
 
 export const BudgetProvider = ({ children }: { children: React.ReactNode }) => {
+  const { user } = useAuth();
   const [budgets, setBudgets] = useState<Budget[]>([]);
   const [selectedBudget, setSelectedBudget] = useState<Budget | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Fetch all budgets on component mount
+  // Fetch user's budgets on component mount or when user changes
   useEffect(() => {
     const fetchBudgets = async () => {
+      if (!user) {
+        setBudgets([]);
+        setIsLoading(false);
+        return;
+      }
+      
       try {
         const { data, error } = await supabase
           .from('budgets')
           .select('*')
+          .eq('user_id', user.id)
           .order('created_at', { ascending: false });
 
         if (error) {
@@ -62,7 +71,7 @@ export const BudgetProvider = ({ children }: { children: React.ReactNode }) => {
     };
 
     fetchBudgets();
-  }, []);
+  }, [user]);
 
   // Default template categories for new budgets
   const defaultCategories = [
@@ -77,6 +86,8 @@ export const BudgetProvider = ({ children }: { children: React.ReactNode }) => {
 
   // Create a new budget
   const createBudget = async (name: string, amount: number, useTemplate: boolean = true): Promise<Budget | null> => {
+    if (!user) return null;
+    
     try {
       // Ensure the amount is a valid number
       const validAmount = typeof amount === 'number' && !isNaN(amount) ? amount : 0;
@@ -88,7 +99,8 @@ export const BudgetProvider = ({ children }: { children: React.ReactNode }) => {
             name, 
             total_amount: validAmount,
             created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString()
+            updated_at: new Date().toISOString(),
+            user_id: user.id
           }
         ])
         .select()
