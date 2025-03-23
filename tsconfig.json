@@ -13,7 +13,7 @@
     "isolatedModules": true,
     "jsx": "preserve",
     "jsxImportSource": "react",
-    "forceConsistentCasingInFileNames": false,
+    "forceConsistentCasingInFileNames": true,
     "incremental": true,
     "plugins": [
       {

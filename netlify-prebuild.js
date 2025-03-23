@@ -56,6 +56,14 @@ try {
       
       console.log(`Creating ${dest} from ${src}`);
       fs.copyFileSync(srcPath, destPath);
+      
+      // Remove the original uppercase file to avoid case conflicts
+      console.log(`Removing original file: ${src}`);
+      try {
+        fs.unlinkSync(srcPath);
+      } catch (err) {
+        console.log(`Could not remove ${src}: ${err.message}`);
+      }
     } else {
       console.log(`Warning: Source file ${src} not found`);
     }
