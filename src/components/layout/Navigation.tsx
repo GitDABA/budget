@@ -49,16 +49,6 @@ export default function Navigation() {
               >
                 Dashboard
               </Link>
-              <Link
-                href="/budgets"
-                className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium ${
-                  pathname.startsWith('/budgets')
-                    ? 'border-blue-500 text-gray-900 dark:text-white'
-                    : 'border-transparent text-gray-500 dark:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600'
-                }`}
-              >
-                Budgets
-              </Link>
             </div>
           </div>
           <div className="flex items-center space-x-4">
