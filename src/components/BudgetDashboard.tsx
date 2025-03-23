@@ -4,7 +4,6 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { AnimatedContainer } from './ui/AnimatedContainer';
 import { AnimatedPieChart } from './ui/AnimatedPieChart';
-import { AnimatedBarChart } from './ui/AnimatedBarChart';
 import { TransactionsList, Transaction } from './ui/TransactionsList';
 import { 
   ArrowUpRight, ArrowDownRight, TrendingUp, 
@@ -331,14 +330,12 @@ export function BudgetDashboard({
             <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-4">
               Top Spending Categories
             </h3>
-            <AnimatedBarChart 
+            <AnimatedPieChart 
               data={categorySortedData}
               height={300}
               valuePrefix={currencyPrefix}
               valueFormatter={formatCurrency}
-              layout="vertical"
-              horizontal={true}
-              onBarClick={handleCategoryClick}
+              onSliceClick={handleCategoryClick}
               emptyMessage="No spending data available yet"
             />
           </div>
