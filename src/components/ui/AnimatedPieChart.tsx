@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Sector } from 'recharts';
-import { AnimatedContainer } from './AnimatedContainer';
+import { AnimatedContainer } from './animatedContainer';
 import { useTheme } from '@/contexts/ThemeContext';
 
 // Types
