@@ -7,6 +7,7 @@ import { PlusCircle, Trash2, Edit, AlertTriangle, ArrowRight, CheckCircle2 } fro
 import { motion, AnimatePresence } from 'framer-motion';
 import AnimatedContainer from './ui/animatedcontainer';
 import ThemeToggle from '@/components/ThemeToggle';
+import inputStyles from '@/styles/input.module.css';
 
 export default function BudgetSelector() {
   const { 
@@ -386,7 +387,7 @@ export default function BudgetSelector() {
                 </h3>
                 <form onSubmit={handleCreateBudget}>
                   <div className="mb-4">
-                    <label htmlFor="budgetName" className="block text-sm font-medium mb-1 text-text-light-primary dark:text-text-dark-primary">
+                    <label htmlFor="budgetName" className="block text-sm font-medium mb-1 text-black dark:text-white">
                       Budget Name
                     </label>
                     <input
@@ -394,7 +395,7 @@ export default function BudgetSelector() {
                       type="text"
                       value={newBudgetName}
                       onChange={(e) => setNewBudgetName(e.target.value)}
-                      className="form-input w-full bg-input-light dark:bg-input-dark border-input-border-light dark:border-input-border-dark rounded p-2 focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400 transition-colors duration-200"
+                      className={`form-input w-full rounded p-2 focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400 transition-colors duration-200 ${inputStyles.inputField}`}
                       placeholder="e.g., Monthly Budget"
                       aria-label="Enter budget name"
                       required
@@ -402,11 +403,11 @@ export default function BudgetSelector() {
                     />
                   </div>
                   <div className="mb-4">
-                    <label htmlFor="budgetAmount" className="block text-sm font-medium mb-1 text-gray-700 dark:text-white">
+                    <label htmlFor="budgetAmount" className="block text-sm font-medium mb-1 text-black dark:text-white">
                       Total Budget Amount
                     </label>
                     <div className="relative">
-                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-300">NOK</span>
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-700 dark:text-gray-100 font-medium">NOK</span>
                       <input
                         id="budgetAmount"
                         type="number"
@@ -417,7 +418,7 @@ export default function BudgetSelector() {
                             setNewBudgetAmount(value);
                           }
                         }}
-                        className="form-input w-full pl-12 bg-input-light dark:bg-input-dark border-input-border-light dark:border-input-border-dark rounded p-2 focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400 transition-colors duration-200"
+                        className={`form-input w-full pl-12 rounded p-2 focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400 transition-colors duration-200 ${inputStyles.inputField}`}
                         min="0"
                         step="1"
                         required
@@ -434,7 +435,7 @@ export default function BudgetSelector() {
                       />
                       <span className="text-sm font-medium">Use default categories template</span>
                     </label>
-                    <p className="text-xs text-gray-500 dark:text-white mt-1 ml-6">Creates a set of predefined categories for this budget</p>
+                    <p className="text-xs text-gray-700 dark:text-gray-200 mt-1 ml-6">Creates a set of predefined categories for this budget</p>
                   </div>
                   <div className="flex justify-end gap-2">
                     <motion.button
@@ -575,7 +576,7 @@ export default function BudgetSelector() {
                       type="text"
                       value={editBudgetName}
                       onChange={(e) => setEditBudgetName(e.target.value)}
-                      className="form-input w-full bg-input-light dark:bg-input-dark border-input-border-light dark:border-input-border-dark rounded p-2 focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400 transition-colors duration-200"
+                      className={`form-input w-full rounded p-2 focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400 transition-colors duration-200 ${inputStyles.inputField}`}
                       placeholder="Budget name"
                       aria-label="Enter budget name"
                       required
@@ -587,7 +588,7 @@ export default function BudgetSelector() {
                       Total Budget Amount
                     </label>
                     <div className="relative">
-                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-300">NOK</span>
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-700 dark:text-gray-100 font-medium">NOK</span>
                       <input
                         id="editBudgetAmount"
                         type="number"
@@ -598,7 +599,7 @@ export default function BudgetSelector() {
                             setEditBudgetAmount(value);
                           }
                         }}
-                        className="form-input w-full pl-12 bg-input-light dark:bg-input-dark border-input-border-light dark:border-input-border-dark rounded p-2 focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400 transition-colors duration-200"
+                        className={`form-input w-full pl-12 rounded p-2 focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400 transition-colors duration-200 ${inputStyles.inputField}`}
                         min="0"
                         step="1"
                         required

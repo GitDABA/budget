@@ -80,7 +80,7 @@ const AddExpenseModal: React.FC<AddExpenseModalProps> = ({
             
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label htmlFor="expenseDescription" className="block text-sm font-medium text-text-light-secondary dark:text-text-dark-secondary mb-1">
+                <label htmlFor="expenseDescription" className="block text-sm font-medium text-black dark:text-white mb-1">
                   Beskrivelse
                 </label>
                 <input
@@ -88,13 +88,13 @@ const AddExpenseModal: React.FC<AddExpenseModalProps> = ({
                   id="expenseDescription"
                   value={newExpense.description}
                   onChange={(e) => setNewExpense(prev => ({ ...prev, description: e.target.value }))}
-                  className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-text-light-primary dark:text-text-dark-primary focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400"
+                  className="w-full px-3 py-2 text-sm border border-gray-400 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400"
                   placeholder="F.eks. Dagligvarer, Kino, etc."
                 />
               </div>
               
               <div>
-                <label htmlFor="expenseAmount" className="block text-sm font-medium text-text-light-secondary dark:text-text-dark-secondary mb-1">
+                <label htmlFor="expenseAmount" className="block text-sm font-medium text-black dark:text-white mb-1">
                   Beløp
                 </label>
                 <input
@@ -102,7 +102,7 @@ const AddExpenseModal: React.FC<AddExpenseModalProps> = ({
                   id="expenseAmount"
                   value={newExpense.amount}
                   onChange={(e) => setNewExpense(prev => ({ ...prev, amount: Number(e.target.value) }))}
-                  className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-text-light-primary dark:text-text-dark-primary focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400"
+                  className="w-full px-3 py-2 text-sm border border-gray-400 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400"
                   min="1"
                   step="1"
                   placeholder="Angi beløp"
@@ -110,14 +110,14 @@ const AddExpenseModal: React.FC<AddExpenseModalProps> = ({
               </div>
               
               <div>
-                <label htmlFor="expenseCategory" className="block text-sm font-medium text-text-light-secondary dark:text-text-dark-secondary mb-1">
+                <label htmlFor="expenseCategory" className="block text-sm font-medium text-black dark:text-white mb-1">
                   Kategori
                 </label>
                 <select
                   id="expenseCategory"
                   value={newExpense.category_id}
                   onChange={(e) => setNewExpense(prev => ({ ...prev, category_id: e.target.value }))}
-                  className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-text-light-primary dark:text-text-dark-primary focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400"
+                  className="w-full px-3 py-2 text-sm border border-gray-400 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400"
                 >
                   {categories.map(category => (
                     <option key={category.id} value={category.id}>
@@ -128,7 +128,7 @@ const AddExpenseModal: React.FC<AddExpenseModalProps> = ({
               </div>
               
               <div>
-                <label htmlFor="expenseDate" className="block text-sm font-medium text-text-light-secondary dark:text-text-dark-secondary mb-1">
+                <label htmlFor="expenseDate" className="block text-sm font-medium text-black dark:text-white mb-1">
                   Dato
                 </label>
                 <div className="relative">
@@ -137,21 +137,21 @@ const AddExpenseModal: React.FC<AddExpenseModalProps> = ({
                     id="expenseDate"
                     value={newExpense.date}
                     onChange={(e) => setNewExpense(prev => ({ ...prev, date: e.target.value }))}
-                    className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-text-light-primary dark:text-text-dark-primary focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400"
+                    className="w-full px-3 py-2 text-sm border border-gray-400 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400"
                   />
-                  <Calendar className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none" size={16} />
+                  <Calendar className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-700 dark:text-gray-300 pointer-events-none" size={16} />
                 </div>
               </div>
               
               <div>
-                <label htmlFor="expenseRecurring" className="block text-sm font-medium text-text-light-secondary dark:text-text-dark-secondary mb-1">
+                <label htmlFor="expenseRecurring" className="block text-sm font-medium text-black dark:text-white mb-1">
                   Type
                 </label>
                 <select
                   id="expenseRecurring"
                   value={newExpense.recurring}
                   onChange={(e) => setNewExpense(prev => ({ ...prev, recurring: e.target.value as 'one-time' | 'monthly' }))}
-                  className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-text-light-primary dark:text-text-dark-primary focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400"
+                  className="w-full px-3 py-2 text-sm border border-gray-400 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400"
                 >
                   <option value="one-time">Engangsbetaling</option>
                   <option value="monthly">Månedlig</option>

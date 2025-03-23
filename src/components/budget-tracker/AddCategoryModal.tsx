@@ -77,7 +77,7 @@ const AddCategoryModal: React.FC<AddCategoryModalProps> = ({
             
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label htmlFor="categoryName" className="block text-sm font-medium text-text-light-secondary dark:text-text-dark-secondary mb-1">
+                <label htmlFor="categoryName" className="block text-sm font-medium text-black dark:text-white mb-1">
                   Kategorinavn
                 </label>
                 <input
@@ -85,13 +85,13 @@ const AddCategoryModal: React.FC<AddCategoryModalProps> = ({
                   id="categoryName"
                   value={newCategory.name}
                   onChange={(e) => setNewCategory(prev => ({ ...prev, name: e.target.value }))}
-                  className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-text-light-primary dark:text-text-dark-primary focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400"
+                  className="w-full px-3 py-2 text-sm border border-gray-400 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400"
                   placeholder="F.eks. Mat, Transport, etc."
                 />
               </div>
               
               <div>
-                <label htmlFor="categoryBudget" className="block text-sm font-medium text-text-light-secondary dark:text-text-dark-secondary mb-1">
+                <label htmlFor="categoryBudget" className="block text-sm font-medium text-black dark:text-white mb-1">
                   Budsjett
                 </label>
                 <input
@@ -99,7 +99,7 @@ const AddCategoryModal: React.FC<AddCategoryModalProps> = ({
                   id="categoryBudget"
                   value={newCategory.budget}
                   onChange={(e) => setNewCategory(prev => ({ ...prev, budget: Number(e.target.value) }))}
-                  className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-text-light-primary dark:text-text-dark-primary focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400"
+                  className="w-full px-3 py-2 text-sm border border-gray-400 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400"
                   min="1"
                   placeholder="Angi beløp"
                 />

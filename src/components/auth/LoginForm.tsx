@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useAuth } from './AuthContext';
+import inputStyles from '@/styles/input.module.css';
 
 export default function LoginForm() {
   const [email, setEmail] = useState('');
@@ -34,26 +35,26 @@ export default function LoginForm() {
   };
 
   return (
-    <div className="w-full max-w-md mx-auto p-6 bg-white rounded-lg shadow-md">
-      <h2 className="text-2xl font-bold mb-6 text-center">
+    <div className="w-full max-w-md mx-auto p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md">
+      <h2 className="text-2xl font-bold mb-6 text-center text-black dark:text-white">
         {isLogin ? 'Sign In' : 'Sign Up'}
       </h2>
       
       {message && (
-        <div className="mb-4 p-3 bg-blue-100 text-blue-800 rounded">
+        <div className="mb-4 p-3 bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-100 rounded">
           {message}
         </div>
       )}
       
       <form onSubmit={handleSubmit}>
         <div className="mb-4">
-          <label className="block text-gray-700 mb-2" htmlFor="email">
+          <label className="block text-black dark:text-white mb-2" htmlFor="email">
             Email
           </label>
           <input
             id="email"
             type="email"
-            className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className={`w-full px-3 py-2 border border-gray-400 dark:border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 ${inputStyles.inputField}`}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
@@ -61,13 +62,13 @@ export default function LoginForm() {
         </div>
         
         <div className="mb-6">
-          <label className="block text-gray-700 mb-2" htmlFor="password">
+          <label className="block text-black dark:text-white mb-2" htmlFor="password">
             Password
           </label>
           <input
             id="password"
             type="password"
-            className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className={`w-full px-3 py-2 border border-gray-400 dark:border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 ${inputStyles.inputField}`}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
@@ -86,7 +87,7 @@ export default function LoginForm() {
       <div className="mt-4 text-center">
         <button
           onClick={() => setIsLogin(!isLogin)}
-          className="text-blue-600 hover:underline focus:outline-none"
+          className="text-blue-700 dark:text-blue-300 hover:underline focus:outline-none font-medium"
         >
           {isLogin ? 'Need an account? Sign Up' : 'Already have an account? Sign In'}
         </button>
